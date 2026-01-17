@@ -17,7 +17,7 @@ import com.machina.minterfacebuilder.cache.FileWatcher;
 import com.machina.minterfacebuilder.cache.TemplateCache;
 import com.machina.minterfacebuilder.factory.ComponentFactory;
 import com.machina.minterfacebuilder.model.InterfaceVariable;
-import com.machina.minterfacebuilder.model.ParsedCustomUITemplate;
+import com.machina.minterfacebuilder.model.HTMLCustomUITemplate;
 import com.machina.minterfacebuilder.parser.CSSStyleParser;
 import com.machina.minterfacebuilder.parser.CustomUIScriptParser;
 import com.machina.minterfacebuilder.parser.HTMLAttributeParser;
@@ -69,25 +69,25 @@ public class InterfaceBuilder {
      * </p>
      * <pre>
      * // Parse an asset from a path string (works for server assets)
-     * ParsedCustomUITemplate template = InterfaceBuilder.parseAsset("ui/pages/login.html");
+     * HTMLCustomUITemplate template = InterfaceBuilder.parseAsset("ui/pages/login.html");
      * 
      * // Or from a Path object (works for server assets)
      * Path assetPath = Paths.get("ui/pages/login.html");
-     * ParsedCustomUITemplate template2 = InterfaceBuilder.parseAsset(assetPath);
+     * HTMLCustomUITemplate template2 = InterfaceBuilder.parseAsset(assetPath);
      * 
      * // For plugin/mod assets, use PluginAsset.of() with parse() instead:
      * Path pluginAssetPath = PluginAsset.of(pluginInstance, "Common/UI/Test.html");
      * if (pluginAssetPath != null) {
-     *     ParsedCustomUITemplate template3 = InterfaceBuilder.parse(pluginAssetPath);
+     *     HTMLCustomUITemplate template3 = InterfaceBuilder.parse(pluginAssetPath);
      * }
      * </pre>
      *
      * @param path The path to the HTML file within an asset pack (can be relative or absolute).
-     * @return The ParsedCustomUITemplate representing the parsed HTML.
+     * @return The HTMLCustomUITemplate representing the parsed HTML.
      * @throws java.io.IOException If the file cannot be read or AssetModule is not available.
      * @see com.machina.minterfacebuilder.util.PluginAsset#of
      */
-    public static ParsedCustomUITemplate parseAsset(String path) throws java.io.IOException {
+    public static HTMLCustomUITemplate parseAsset(String path) throws java.io.IOException {
         return parseAsset(Path.of(path), new HashMap<>());
     }
 
@@ -98,10 +98,10 @@ public class InterfaceBuilder {
      *
      * @param path The path to the HTML file within an asset pack (can be relative or absolute).
      * @param variables Additional variables to use during parsing (will override template variables).
-     * @return The ParsedCustomUITemplate representing the parsed HTML.
+     * @return The HTMLCustomUITemplate representing the parsed HTML.
      * @throws java.io.IOException If the file cannot be read or AssetModule is not available.
      */
-    public static ParsedCustomUITemplate parseAsset(String path, Map<String, String> variables) throws java.io.IOException {
+    public static HTMLCustomUITemplate parseAsset(String path, Map<String, String> variables) throws java.io.IOException {
         return parseAsset(Path.of(path), variables);
     }
 
@@ -112,10 +112,10 @@ public class InterfaceBuilder {
      * Uses cache to avoid re-parsing the same file.
      *
      * @param path The Path to the HTML file within an asset pack (can be relative or absolute).
-     * @return The ParsedCustomUITemplate representing the parsed HTML.
+     * @return The HTMLCustomUITemplate representing the parsed HTML.
      * @throws java.io.IOException If the file cannot be read or AssetModule is not available.
      */
-    public static ParsedCustomUITemplate parseAsset(Path path) throws java.io.IOException {
+    public static HTMLCustomUITemplate parseAsset(Path path) throws java.io.IOException {
         return parseAsset(path, new HashMap<>());
     }
 
@@ -127,10 +127,10 @@ public class InterfaceBuilder {
      *
      * @param path The Path to the HTML file within an asset pack (can be relative or absolute).
      * @param variables Additional variables to use during parsing (will override template variables).
-     * @return The ParsedCustomUITemplate representing the parsed HTML.
+     * @return The HTMLCustomUITemplate representing the parsed HTML.
      * @throws java.io.IOException If the file cannot be read or AssetModule is not available.
      */
-    public static ParsedCustomUITemplate parseAsset(Path path, Map<String, String> variables) throws java.io.IOException {
+    public static HTMLCustomUITemplate parseAsset(Path path, Map<String, String> variables) throws java.io.IOException {
         // Resolve asset path using AssetModule
         Path resolvedPath = resolveAssetPath(path);
         if (resolvedPath == null) {
@@ -199,7 +199,7 @@ public class InterfaceBuilder {
     }
 
     /**
-     * Parse HTML file from Path and convert it to a ParsedCustomUITemplate.
+     * Parse HTML file from Path and convert it to a HTMLCustomUITemplate.
      * Uses cache to avoid re-parsing the same file.
      * <p>
      * This method is the recommended way to parse assets from plugins/mods.
@@ -213,22 +213,22 @@ public class InterfaceBuilder {
      * // In your JavaPlugin class
      * Path uiPath = PluginAsset.of(this, "Common/UI/Test.html");
      * if (uiPath != null) {
-     *     ParsedCustomUITemplate template = InterfaceBuilder.parse(uiPath);
+     *     HTMLCustomUITemplate template = InterfaceBuilder.parse(uiPath);
      *     // Use template...
      * }
      * </pre>
      *
      * @param path The Path to the HTML file.
-     * @return The ParsedCustomUITemplate representing the parsed HTML.
+     * @return The HTMLCustomUITemplate representing the parsed HTML.
      * @throws java.io.IOException If the file cannot be read.
      * @see com.machina.minterfacebuilder.util.PluginAsset#of
      */
-    public static ParsedCustomUITemplate parse(Path path) throws java.io.IOException {
+    public static HTMLCustomUITemplate parse(Path path) throws java.io.IOException {
         return parse(path, new HashMap<>());
     }
 
     /**
-     * Parse HTML file from Path and convert it to a ParsedCustomUITemplate with provided variables.
+     * Parse HTML file from Path and convert it to a HTMLCustomUITemplate with provided variables.
      * Uses cache to avoid re-parsing the same file.
      * <p>
      * This method is the recommended way to parse assets from plugins/mods with variables.
@@ -243,21 +243,21 @@ public class InterfaceBuilder {
      * Path uiPath = PluginAsset.of(this, "Common/UI/Test.html");
      * if (uiPath != null) {
      *     Map&lt;String, String&gt; vars = Map.of("title", "My Plugin");
-     *     ParsedCustomUITemplate template = InterfaceBuilder.parse(uiPath, vars);
+     *     HTMLCustomUITemplate template = InterfaceBuilder.parse(uiPath, vars);
      *     // Use template...
      * }
      * </pre>
      *
      * @param path The Path to the HTML file.
      * @param variables Additional variables to use during parsing (will override template variables).
-     * @return The ParsedCustomUITemplate representing the parsed HTML.
+     * @return The HTMLCustomUITemplate representing the parsed HTML.
      * @throws java.io.IOException If the file cannot be read.
      * @see com.machina.minterfacebuilder.util.PluginAsset#of
      */
-    public static ParsedCustomUITemplate parse(Path path, Map<String, String> variables) throws java.io.IOException {
+    public static HTMLCustomUITemplate parse(Path path, Map<String, String> variables) throws java.io.IOException {
         // Note: Cache doesn't consider variables, so we don't use cache when variables are provided
         if (variables == null || variables.isEmpty()) {
-            ParsedCustomUITemplate cached = TemplateCache.get(path);
+            HTMLCustomUITemplate cached = TemplateCache.get(path);
             if (cached != null) {
                 return cached;
             }
@@ -267,7 +267,7 @@ public class InterfaceBuilder {
         String html = Files.readString(path);
 
         // Parse the HTML with variables
-        ParsedCustomUITemplate result = parse(html, variables);
+        HTMLCustomUITemplate result = parse(html, variables);
 
         // Store in cache only if no custom variables were provided
         if (variables == null || variables.isEmpty()) {
@@ -278,21 +278,21 @@ public class InterfaceBuilder {
     }
 
     /**
-     * Parse HTML string and convert it to a ParsedCustomUITemplate.
+     * Parse HTML string and convert it to a HTMLCustomUITemplate.
      * @param html The HTML string to parse.
-     * @return The ParsedCustomUITemplate representing the parsed HTML.
+     * @return The HTMLCustomUITemplate representing the parsed HTML.
      */
-    public static ParsedCustomUITemplate parse(String html) {
+    public static HTMLCustomUITemplate parse(String html) {
         return parse(html, new HashMap<>());
     }
 
     /**
-     * Parse HTML string and convert it to a ParsedCustomUITemplate with provided variables.
+     * Parse HTML string and convert it to a HTMLCustomUITemplate with provided variables.
      * @param html The HTML string to parse.
      * @param variables Additional variables to use during parsing (will override template variables).
-     * @return The ParsedCustomUITemplate representing the parsed HTML.
+     * @return The HTMLCustomUITemplate representing the parsed HTML.
      */
-    public static ParsedCustomUITemplate parse(String html, Map<String, String> variables) {
+    public static HTMLCustomUITemplate parse(String html, Map<String, String> variables) {
         // Remove HTML comments
         html = COMMENT_PATTERN.matcher(html).replaceAll("");
 
@@ -345,8 +345,8 @@ public class InterfaceBuilder {
         // Extract used tags from context (created during parsing)
         Set<String> usedHtmlTags = context.usedHtmlTags;
         
-        // Create ParsedCustomUITemplate with variables and used HTML tags
-        return new ParsedCustomUITemplate(componentBuilder, templateVariables, usedHtmlTags);
+        // Create HTMLCustomUITemplate with variables and used HTML tags
+        return new HTMLCustomUITemplate(componentBuilder, templateVariables, usedHtmlTags);
     }
 
 
@@ -384,11 +384,11 @@ public class InterfaceBuilder {
      * InterfaceBuilder.watchFileChanges(templatePath);
      *
      * // Parse the file (will be cached)
-     * ParsedCustomUITemplate template = InterfaceBuilder.parse(templatePath);
+     * HTMLCustomUITemplate template = InterfaceBuilder.parse(templatePath);
      *
      * // Later, when the file is modified on disk, the cache will be cleared
      * // The next parse call will automatically reload the file
-     * ParsedCustomUITemplate updatedTemplate = InterfaceBuilder.parse(templatePath);
+     * HTMLCustomUITemplate updatedTemplate = InterfaceBuilder.parse(templatePath);
      * </pre>
      * <p>
      * <b>Note:</b> This method must be called with an absolute path. Relative paths will be
@@ -497,9 +497,21 @@ public class InterfaceBuilder {
 
         // Track HTML tags that need aliases (h1-h6, span, p, label)
         // These tags map to Label components and should have aliases generated
+        // Use lowercase to ensure consistency and prevent duplicates
         if (commonPrefix == null || commonPrefix.isEmpty()) {
-            if (tagName.matches("h[1-6]") || tagName.equals("span") || tagName.equals("p") || tagName.equals("label")) {
-                context.usedHtmlTags.add(tagName);
+            String tagNameLower = tagName.toLowerCase();
+            // Check for h1-h6 (avoid regex to prevent stack overflow issues)
+            boolean isHeading = tagNameLower.length() == 2 && tagNameLower.startsWith("h") && 
+                tagNameLower.charAt(1) >= '1' && tagNameLower.charAt(1) <= '6';
+
+            boolean isSpan = tagNameLower.equals("span");
+            boolean isP = tagNameLower.equals("p");
+            boolean isLabel = tagNameLower.equals("label");
+
+            boolean isAnyTextTag = isHeading || isSpan || isP || isLabel;
+
+            if (isAnyTextTag) {
+                context.usedHtmlTags.add(tagNameLower);
             }
         }
 
@@ -512,11 +524,53 @@ public class InterfaceBuilder {
             id = attributes.get("id"); // Fallback to lowercase (shouldn't happen)
         }
         if (id != null && !id.isEmpty()) {
+            // Prohibit using MIBRoot as ID (reserved for root container)
+            String idNormalized = id.trim();
+            if (idNormalized.equalsIgnoreCase("MIBRoot")) {
+                throw new IllegalArgumentException(
+                    "ID 'MIBRoot' is reserved for the root container and cannot be used for HTML elements. " +
+                    "Please use a different ID for element: <" + tagName + " id=\"" + id + "\">"
+                );
+            }
+
             component.setId(id);
         }
 
         // Set properties from attributes
         applyAttributesToComponent(component, attributes, tagName, context.variables);
+
+        // Handle Group with Text attribute - create Label child instead
+        // Group does not support Text property, so we need to create a Label child
+        Object groupTextValue = null;
+        if (tagName.equals("group")) {
+            String textValue = attributes.get("Text");
+            if (textValue == null) {
+                textValue = attributes.get("text"); // Fallback to lowercase
+            }
+            // Check if Text was set as a property (from binding or attribute)
+            if (textValue == null || textValue.isEmpty()) {
+                Object textProperty = component.getProperty("Text");
+                if (textProperty != null) {
+                    groupTextValue = textProperty;
+                }
+            } else {
+                groupTextValue = textValue;
+            }
+
+            // Remove Text from Group (it doesn't support it)
+            if (groupTextValue != null) {
+                component.getBuilderVariables().remove("Text");
+                try {
+                    java.lang.reflect.Field propertiesField = component.getClass().getDeclaredField("properties");
+                    propertiesField.setAccessible(true);
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> properties = (Map<String, Object>) propertiesField.get(component);
+                    properties.remove("Text");
+                } catch (Exception e) {
+                    // If reflection fails, ignore
+                }
+            }
+        }
 
         // Check if it's a self-closing tag
         // Support both <tag /> and <tag/> formats
@@ -541,7 +595,15 @@ public class InterfaceBuilder {
 
         // Parse children
         context.position = contentStart;
-        List<ComponentBuilder> children = new ArrayList<>();
+
+        // If Group has Text attribute, create a Label child first
+        if (tagName.equals("group") && groupTextValue != null) {
+            ComponentBuilder labelChild = ComponentBuilder.create("Label");
+            // If groupTextValue is a String, use it directly; otherwise convert to String
+            String textStr = groupTextValue instanceof String ? (String) groupTextValue : groupTextValue.toString();
+            labelChild.setProperty("Text", textStr);
+            component.appendChild(labelChild);
+        }
 
         // Special handling for <select> - collect options
         if (tagName.equals("select")) {
@@ -604,20 +666,6 @@ public class InterfaceBuilder {
             List<ComponentBuilder> childComponents = new ArrayList<>();
             
             while (context.position < contentEnd) {
-                // Check if we're at a closing tag
-                if (html.charAt(context.position) == '<' && 
-                    context.position + 1 < html.length() && 
-                    html.charAt(context.position + 1) == '/') {
-                    // Found closing tag - skip it and break
-                    int closingTagEnd = html.indexOf('>', context.position);
-                    if (closingTagEnd != -1) {
-                        context.position = closingTagEnd + 1;
-                    } else {
-                        context.position = contentEnd;
-                    }
-                    break;
-                }
-                
                 // Find next tag (opening or closing)
                 int textStart = context.position;
                 int nextTag = html.indexOf('<', textStart);
@@ -625,7 +673,7 @@ public class InterfaceBuilder {
                     nextTag = contentEnd;
                 }
                 
-                // Collect text before the next tag
+                // Collect text before the next tag (this must happen BEFORE checking for closing tag)
                 if (nextTag > textStart) {
                     String text = html.substring(textStart, nextTag).trim();
                     if (!text.isEmpty()) {
@@ -639,15 +687,22 @@ public class InterfaceBuilder {
                 // Move to the tag position
                 context.position = nextTag;
                 
-                // If we've reached the end or found a closing tag, break
+                // If we've reached the end, break
                 if (context.position >= contentEnd) {
                     break;
                 }
                 
-                // Check if it's a closing tag
+                // Check if it's a closing tag - AFTER collecting any text before it
                 if (html.charAt(context.position) == '<' && 
                     context.position + 1 < html.length() && 
                     html.charAt(context.position + 1) == '/') {
+                    // Found closing tag - skip it and break
+                    int closingTagEnd = html.indexOf('>', context.position);
+                    if (closingTagEnd != -1) {
+                        context.position = closingTagEnd + 1;
+                    } else {
+                        context.position = contentEnd;
+                    }
                     break;
                 }
                 
@@ -668,10 +723,17 @@ public class InterfaceBuilder {
             // Otherwise, if there are both text and components, text is ignored (components take priority)
             String textStr = textContent.toString().trim();
             if (!textStr.isEmpty() && childComponents.isEmpty()) {
-                // Only text, no components - apply directly to Text property
-                // Note: Do NOT substitute variables here - keep them as references (e.g., "@Title")
-                // Variables can be changed at runtime by the Hytale Custom UI system
-                component.setProperty("Text", textStr);
+                // Group does not support Text property - create Label child instead
+                if (tagName.equals("group")) {
+                    ComponentBuilder labelChild = ComponentBuilder.create("Label");
+                    labelChild.setProperty("Text", textStr);
+                    component.appendChild(labelChild);
+                } else {
+                    // Only text, no components - apply directly to Text property
+                    // Note: Do NOT substitute variables here - keep them as references (e.g., "@Title")
+                    // Variables can be changed at runtime by the Hytale Custom UI system
+                    component.setProperty("Text", textStr);
+                }
             }
         }
 
@@ -866,7 +928,7 @@ public class InterfaceBuilder {
         }
 
         // Note: Default styles for headings (h1-h6) and paragraphs (p) are now in the aliases
-        // (@_MI_h1, @_MI_h2, etc.), so we don't apply them here anymore.
+        // (@MIBH1, @MIBH2, etc.), so we don't apply them here anymore.
         // Only styles explicitly specified in HTML will be applied.
 
         // Apply specific attributes based on tag type
@@ -1026,6 +1088,12 @@ public class InterfaceBuilder {
                 if (alt != null && !alt.isEmpty()) {
                     component.setProperty("Tooltip", alt);
                 }
+                break;
+
+            case "group":
+                // Group does not support Text property directly
+                // If Text is present in attributes, don't apply it here
+                // It will be handled after applyAttributesToComponent in parseElement
                 break;
         }
     }

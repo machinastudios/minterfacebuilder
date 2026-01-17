@@ -199,6 +199,10 @@ public class ComponentBuilder {
 
         // Add the properties to the list
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            // Group does not support Text property - skip it (it should be converted to Label child)
+            if (entry.getKey().equals("Text") && this.component.equalsIgnoreCase("Group")) {
+                continue;
+            }
             String value;
 
             if (entry.getValue() instanceof Map<?, ?>) {
@@ -313,7 +317,15 @@ public class ComponentBuilder {
      * @return The builder instance.
      */
     public ComponentBuilder setVariable(String variable, String value) {
-        this.variables.put(variable.replaceFirst("^@", ""), value);
+        String cleanVar = variable.replaceFirst("^@", "");
+        // #region agent log - track _MI_ additions
+        if (cleanVar.startsWith("_MI_")) {
+            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+            String caller = stack.length > 2 ? stack[2].toString() : "unknown";
+            System.err.println("[DEBUG-B] setVariable called with _MI_ | var=" + cleanVar + " | value=" + value + " | caller=" + caller);
+        }
+        // #endregion
+        this.variables.put(cleanVar, value);
         return this;
     }
 
@@ -324,9 +336,28 @@ public class ComponentBuilder {
      * @return The builder instance.
      */
     public ComponentBuilder setVariable(Map<String, String> variables) {
+        // #region agent log - track _MI_ additions in bulk
+        for (String key : variables.keySet()) {
+            if (key.startsWith("_MI_") || key.startsWith("@_MI_")) {
+                StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+                String caller = stack.length > 2 ? stack[2].toString() : "unknown";
+                System.err.println("[DEBUG-B] setVariable(Map) called with _MI_ | var=" + key + " | caller=" + caller);
+            }
+        }
+        // #endregion
         this.variables.putAll(variables);
         return this;
     }
+    
+    // #region agent log - temporary getters
+    public Map<String, String> getBuilderVariables() {
+        return this.variables;
+    }
+    
+    public ComponentBuilderSettings getSettings() {
+        return this.settings;
+    }
+    // #endregion
 
     /**
      * Set the parent of the component.
@@ -367,7 +398,18 @@ public class ComponentBuilder {
      * @return The builder instance.
      */
     public ComponentBuilder setId(String id) {
-        this.id = toPascalCase(id);
+        String pascalId = toPascalCase(id);
+
+        // Prohibit using MIBRoot as ID (reserved for root container)
+        // Check both original and PascalCase versions to catch all variations
+        if (pascalId != null && pascalId.equalsIgnoreCase("MIBRoot")) {
+            throw new IllegalArgumentException(
+                "ID 'MIBRoot' (or any case variation like '" + id + "' -> '" + pascalId + "') is reserved for the root container " +
+                "and cannot be used for UI components. Please use a different ID."
+            );
+        }
+
+        this.id = pascalId;
         return this;
     }
 

@@ -161,7 +161,7 @@ Then add as a dependency:
 
 ```java
 import com.machina.minterfacebuilder.InterfaceBuilder;
-import com.machina.minterfacebuilder.util.customui.ParsedCustomUITemplate;
+import com.machina.minterfacebuilder.model.HTMLCustomUITemplate;
 
 // Parse HTML string
 String html = """
@@ -170,7 +170,7 @@ String html = """
     </div>
     """;
 
-ParsedCustomUITemplate template = InterfaceBuilder.parse(html);
+HTMLCustomUITemplate template = InterfaceBuilder.parse(html);
 
 // Get the UI string
 String uiString = template.build();
@@ -181,7 +181,7 @@ String uiString = template.build();
 ```java
 public class MyPage extends InteractiveCustomUIPage<MyEventData> {
     // Parse template once during class initialization or in constructor
-    private static final ParsedCustomUITemplate PAGE_TEMPLATE = InterfaceBuilder.parse(
+    private static final HTMLCustomUITemplate PAGE_TEMPLATE = InterfaceBuilder.parse(
         Paths.get("Common/UI/Custom/Pages/MyPage.html")
     );
     
@@ -210,7 +210,7 @@ String html = """
     </div>
     """;
 
-ParsedCustomUITemplate template = InterfaceBuilder.parse(html);
+HTMLCustomUITemplate template = InterfaceBuilder.parse(html);
 
 // Modify variables after parsing
 template.setVariable("ButtonText", "New Text");
@@ -232,7 +232,7 @@ String html = """
     </div>
     """;
 
-ParsedCustomUITemplate template = InterfaceBuilder.parse(html);
+HTMLCustomUITemplate template = InterfaceBuilder.parse(html);
 ```
 
 In the example above, `%ui.button.submit` and `%messages.welcome` are i18n paths that will be resolved by your i18n system. They are not processed for variable substitution and are passed as-is to the component.
@@ -246,10 +246,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 Path htmlFile = Paths.get("ui/my-page.html");
-ParsedCustomUITemplate template = InterfaceBuilder.parse(htmlFile);
+HTMLCustomUITemplate template = InterfaceBuilder.parse(htmlFile);
 
 // Files are automatically cached
-ParsedCustomUITemplate cached = InterfaceBuilder.parse(htmlFile); // Uses cache
+HTMLCustomUITemplate cached = InterfaceBuilder.parse(htmlFile); // Uses cache
 ```
 
 ### Providing Variables
@@ -259,7 +259,7 @@ Map<String, String> variables = new HashMap<>();
 variables.put("Title", "Welcome");
 variables.put("Color", "#ffffff");
 
-ParsedCustomUITemplate template = InterfaceBuilder.parse(html, variables);
+HTMLCustomUITemplate template = InterfaceBuilder.parse(html, variables);
 ```
 
 ## Supported HTML Tags
@@ -524,12 +524,12 @@ Both formats are supported:
 <qrcode data="test" />
 ```
 
-## ParsedCustomUITemplate
+## HTMLCustomUITemplate
 
-The `ParsedCustomUITemplate` class extends `ComponentBuilder`, so you can use it directly:
+The `HTMLCustomUITemplate` class extends `ComponentBuilder`, so you can use it directly:
 
 ```java
-ParsedCustomUITemplate template = InterfaceBuilder.parse(html);
+HTMLCustomUITemplate template = InterfaceBuilder.parse(html);
 
 // Use as ComponentBuilder
 template.setProperty("SomeProperty", "value");
@@ -571,7 +571,7 @@ variables are extracted for substitution in the template.
 Map<String, String> vars = new HashMap<>();
 vars.put("Title", "Hello");
 vars.put("Color", "#00ff00");
-ParsedCustomUITemplate template = HTMLCustomUIParser.parse(html, vars);
+HTMLCustomUITemplate template = InterfaceBuilder.parse(html, vars);
 ```
 
 3. Modify variables after parsing:
@@ -659,10 +659,10 @@ Templates parsed from files are automatically cached:
 Path file = Paths.get("ui/page.html");
 
 // First parse - reads from file
-ParsedCustomUITemplate template1 = HTMLCustomUIParser.parse(file);
+HTMLCustomUITemplate template1 = InterfaceBuilder.parse(file);
 
 // Second parse - uses cache
-ParsedCustomUITemplate template2 = HTMLCustomUIParser.parse(file);
+HTMLCustomUITemplate template2 = InterfaceBuilder.parse(file);
 ```
 
 Clear the cache if needed:
@@ -679,7 +679,7 @@ InterfaceBuilder.removeFromCache(file); // Remove specific file
 
 ```java
 import com.machina.minterfacebuilder.InterfaceBuilder;
-import com.machina.minterfacebuilder.util.customui.ParsedCustomUITemplate;
+import com.machina.minterfacebuilder.model.HTMLCustomUITemplate;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -703,7 +703,7 @@ Map<String, String> vars = new HashMap<>();
 vars.put("ButtonColor", "#4a90e2");
 
 // Parse
-ParsedCustomUITemplate template = HTMLCustomUIParser.parse(html, vars);
+HTMLCustomUITemplate template = InterfaceBuilder.parse(html, vars);
 
 // Modify after parsing
 template.setVariable("Title", "Sign In");
@@ -728,9 +728,8 @@ import com.machina.minterfacebuilder.util.PluginAsset;
 import java.nio.file.Path;
 
 public class MyPage extends InteractiveCustomUIPage<MyPage.MyEventData> {
-    
     // Parse template once during class initialization (recommended for performance)
-    private static final ParsedCustomUITemplate PAGE_TEMPLATE = InterfaceBuilder.parse(
+    private static final HTMLCustomUITemplate PAGE_TEMPLATE = InterfaceBuilder.parse(
         PluginAsset.of(pluginInstance, "Common/UI/Custom/Pages/MyPage.html")
     );
     
@@ -803,7 +802,7 @@ For complete API documentation, see the [Javadoc](https://machinastudios.github.
 - `clearCache()` - Clear all cached templates
 - `removeFromCache(Path path)` - Remove specific file from cache
 
-### ParsedCustomUITemplate
+### HTMLCustomUITemplate
 
 Extends `ComponentBuilder` - all ComponentBuilder methods are available.
 
@@ -819,6 +818,190 @@ Extends `ComponentBuilder` - all ComponentBuilder methods are available.
 - `build()` - Build UI string (from ComponentBuilder)
 - `build(ComponentBuilderSettings settings)` - Build UI string with settings
 - `buildUICommandBuilder()` - Build UICommandBuilder for dynamic updates
+- `buildEventDataCodec()` - Build a `BuilderCodec<DynamicEventData>` based on template variables
+
+#### File Persistence Methods
+
+- `loadFromFile(String filename, Path configPath, Path defaultAssetPath)` - Load template from file (static method)
+  - If file exists in `configPath`, uses that file
+  - If not, copies from `defaultAssetPath` to `configPath` and uses the copied file
+  - Throws `FileNotFoundException` if file not found in either location
+  - Throws `IOException` if copying fails
+- `saveToFile(String filename, Path path)` - Save template to file
+- `saveToFile(String filename)` - Save template to default path (if set)
+
+### HTMLCustomUIPage
+
+A convenience class that extends `InteractiveCustomUIPage` and automatically converts HTML content to Custom UI format. This class simplifies the creation of Custom UI pages by handling HTML parsing and template management automatically.
+
+**Important:** `HTMLCustomUIPage` requires a `PlayerRef` in all constructors. Use `PlayerUtil.openPage()` or similar methods to open the page on the world thread.
+
+#### Constructors
+
+- `HTMLCustomUIPage(PlayerRef playerRef)` - Create with default lifetime (`CanDismiss`) and dynamic codec
+- `HTMLCustomUIPage(PlayerRef playerRef, BuilderCodec<T> eventDataCodec)` - Create with custom codec
+- `HTMLCustomUIPage(PlayerRef playerRef, CustomPageLifetime lifetime, BuilderCodec<T> eventDataCodec)` - Full constructor
+- `HTMLCustomUIPage(PlayerRef playerRef, BuilderCodec<T> eventDataCodec, Map<String, String> overrideVariables)` - Create with variable overrides
+- `HTMLCustomUIPage(PlayerRef playerRef, CustomPageLifetime lifetime, BuilderCodec<T> eventDataCodec, Map<String, String> overrideVariables)` - Full constructor with variables
+
+#### Static Factory Methods
+
+- `build(PlayerRef playerRef)` - Build instance from calling subclass (uses reflection to find and instantiate)
+- `fromHTML(PlayerRef playerRef, BuilderCodec<T> eventDataCodec, String html)` - Create from HTML string
+- `fromHTML(PlayerRef playerRef, CustomPageLifetime lifetime, BuilderCodec<T> eventDataCodec, String html)` - Create from HTML string with custom lifetime
+- `fromHTML(PlayerRef playerRef, BuilderCodec<T> eventDataCodec, String html, Map<String, String> variables)` - Create from HTML string with variables
+- `fromHTML(PlayerRef playerRef, CustomPageLifetime lifetime, BuilderCodec<T> eventDataCodec, String html, Map<String, String> variables)` - Full fromHTML variant
+- `fromFile(PlayerRef playerRef, BuilderCodec<T> eventDataCodec, Path htmlPath)` - Create from HTML file
+- `fromFile(PlayerRef playerRef, CustomPageLifetime lifetime, BuilderCodec<T> eventDataCodec, Path htmlPath)` - Create from HTML file with custom lifetime
+- `fromFile(PlayerRef playerRef, BuilderCodec<T> eventDataCodec, Path htmlPath, Map<String, String> variables)` - Create from HTML file with variables
+- `fromFile(PlayerRef playerRef, CustomPageLifetime lifetime, BuilderCodec<T> eventDataCodec, Path htmlPath, Map<String, String> variables)` - Full fromFile variant
+- `fromAsset(PlayerRef playerRef, BuilderCodec<T> eventDataCodec, String assetPath)` - Create from plugin asset (requires AssetPack)
+- `fromAsset(PlayerRef playerRef, CustomPageLifetime lifetime, BuilderCodec<T> eventDataCodec, String assetPath)` - Create from plugin asset with custom lifetime
+- `fromAsset(PlayerRef playerRef, BuilderCodec<T> eventDataCodec, String assetPath, Map<String, String> variables)` - Create from plugin asset with variables
+- `fromAsset(PlayerRef playerRef, CustomPageLifetime lifetime, BuilderCodec<T> eventDataCodec, String assetPath, Map<String, String> variables)` - Full fromAsset variant
+
+#### Instance Methods
+
+- `withOutputPath(Path outputPath, String filename)` - Set output path for customizable template file (where users can edit)
+- `withInputPath(Path inputPath)` - Set input path for default template file directory (from mod assets)
+- `buildInstance()` - Build the Custom UI string (instance method, uses cached template or loads from paths)
+- `getParsedTemplate()` - Get the parsed `HTMLCustomUITemplate` (lazy-loaded if using paths)
+
+#### Usage Examples
+
+**Simple usage with build() method:**
+
+```java
+public class MyPage extends HTMLCustomUIPage<HTMLCustomUITemplate.DynamicEventData> {
+    // Constructor required by build()
+    protected MyPage(PlayerRef playerRef) {
+        super(playerRef); // Codec will be built dynamically after paths are set
+        
+        // Configure paths (optional)
+        withOutputPath(plugin.getConfigDirectory(), "pages/my-page.html");
+        Path inputFile = plugin.getModAssetPath("Common/UI/Custom/Pages/MyPage.html");
+        if (inputFile != null) {
+            withInputPath(inputFile.getParent()); // Input path is a directory
+        }
+    }
+    
+    // Build and open page
+    public static void show(PlayerRef playerRef, Ref<EntityStore> ref, Store<EntityStore> store) {
+        MyPage page = MyPage.build(playerRef);
+        // Page is ready to use - it will be opened via InteractiveCustomUIPage.build()
+        // when the page is actually displayed to the player
+    }
+}
+```
+
+**Using with PlayerUtil.openPage (recommended for thread safety):**
+
+```java
+PlayerUtil.openPage(
+    player,
+    (p, ref, store) -> CustomHTMLPage.build(p.getPlayerRef())
+)
+.thenAccept(result -> {
+    if (!result.success) {
+        // Handle error
+    }
+});
+```
+
+**Using with HTML file paths:**
+
+```java
+// Simple file loading (requires PlayerRef and BuilderCodec)
+BuilderCodec<MyEventData> codec = ...; // Your codec
+HTMLCustomUIPage page = HTMLCustomUIPage.fromFile(
+    playerRef,
+    codec,
+    Path.of("pages/login.html")
+);
+
+// With custom lifetime and variables
+Map<String, String> vars = new HashMap<>();
+vars.put("Title", "Login");
+HTMLCustomUIPage page = HTMLCustomUIPage.fromFile(
+    playerRef,
+    CustomPageLifetime.CantClose,
+    codec,
+    Path.of("pages/login.html"),
+    vars
+);
+```
+
+**Using with plugin assets:**
+
+```java
+// Load from plugin's AssetPack
+HTMLCustomUIPage page = HTMLCustomUIPage.fromAsset(
+    playerRef,
+    codec,
+    pluginInstance,
+    "Common/UI/Custom/Pages/Settings.html"
+);
+
+// With variables
+Map<String, String> vars = new HashMap<>();
+vars.put("PlayerName", player.getName());
+HTMLCustomUIPage page = HTMLCustomUIPage.fromAsset(
+    playerRef,
+    CustomPageLifetime.CanDismiss,
+    codec,
+    pluginInstance,
+    "Common/UI/Custom/Pages/Profile.html",
+    vars
+);
+```
+
+**Using with customizable template files:**
+
+This pattern allows users to customize HTML templates while keeping defaults in mod assets:
+
+```java
+public class SettingsPage extends HTMLCustomUIPage<HTMLCustomUITemplate.DynamicEventData> {
+    protected SettingsPage(PlayerRef playerRef) {
+        super(playerRef); // Dynamic codec will be built after paths are set
+        
+        // Output: User can edit this file (in config folder)
+        withOutputPath(plugin.getConfigDirectory(), "pages/settings.html");
+        
+        // Input: Default template directory (in mod assets)
+        Path inputFile = plugin.getModAssetPath("Common/UI/Custom/Pages/Settings.html");
+        if (inputFile != null) {
+            withInputPath(inputFile.getParent()); // Pass directory, not file
+        }
+        
+        // On first load, if outputPath doesn't exist, it copies from inputPath
+        // After that, only outputPath is used (users can customize it)
+    }
+    
+    public static SettingsPage build(PlayerRef playerRef) {
+        return HTMLCustomUIPage.build(playerRef);
+    }
+}
+```
+
+#### Key Features
+
+1. **PlayerRef Required**: All constructors require a `PlayerRef` parameter for proper initialization.
+
+2. **Automatic Dynamic Codec**: When using `build()` with `HTMLCustomUITemplate.DynamicEventData`, the codec is automatically generated from template variables.
+
+3. **Template Caching**: Templates are cached after first parse to improve performance.
+
+4. **Path-Based Templates**: Supports both input (default) and output (customizable) paths for template files.
+   - `inputPath`: Directory path containing the default template file (from mod assets)
+   - `outputPath`: Full path (directory + filename) where the customizable template is stored (in config folder)
+   - On first load, if `outputPath` doesn't exist, it's copied from `inputPath`
+   - After that, only `outputPath` is used (users can customize it)
+
+5. **Variable Overrides**: Can provide variables during construction that override template variables.
+
+6. **Default Lifetime**: Default lifetime is `CustomPageLifetime.CanDismiss` if not specified.
+
+7. **Thread Safety**: Use `PlayerUtil.openPage()` to ensure page opening happens on the world thread.
 
 ## Limitations
 
@@ -933,6 +1116,17 @@ When adding new features:
 2. Add Javadoc comments in English
 3. Follow existing code style
 4. Test with various HTML inputs
+
+## Community
+
+💬 **Join our Discord community!**
+
+Get help, share your ideas, and connect with other developers:
+- 🆘 **Support**: Get help with setup and troubleshooting
+- 💡 **Suggestions**: Share your ideas and feedback
+- 🤝 **Community**: Connect with other Hytale developers
+
+**👉 [Join Discord Server](https://discord.gg/QAFrzj48EN)**
 
 ## License
 

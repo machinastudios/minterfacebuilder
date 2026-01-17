@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import com.machina.minterfacebuilder.model.ParsedCustomUITemplate;
+import com.machina.minterfacebuilder.model.HTMLCustomUITemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -72,7 +72,7 @@ public class InterfaceBuilderTest {
 
 
         // Parse the HTML
-        ParsedCustomUITemplate template = InterfaceBuilder.parse(html);
+        HTMLCustomUITemplate template = InterfaceBuilder.parse(html);
         assertNotNull(template, "Parsed template should not be null");
 
         // Build the UI command
@@ -125,7 +125,7 @@ public class InterfaceBuilderTest {
         Files.writeString(htmlFile, htmlContent);
 
         // Parse from file
-        ParsedCustomUITemplate template = InterfaceBuilder.parse(htmlFile);
+        HTMLCustomUITemplate template = InterfaceBuilder.parse(htmlFile);
         assertNotNull(template);
 
         // Build and save output
@@ -153,13 +153,13 @@ public class InterfaceBuilderTest {
             """;
 
         // Parse without overriding variables
-        ParsedCustomUITemplate template1 = InterfaceBuilder.parse(html);
+        HTMLCustomUITemplate template1 = InterfaceBuilder.parse(html);
         String output1 = template1.build();
 
         // Parse with overriding variables
         java.util.Map<String, String> variables = new java.util.HashMap<>();
         variables.put("Title", "Custom Title"); // Note: without @ prefix when passing as map key
-        ParsedCustomUITemplate template2 = InterfaceBuilder.parse(html, variables);
+        HTMLCustomUITemplate template2 = InterfaceBuilder.parse(html, variables);
         String output2 = template2.build();
 
         // Outputs should be different (if variable substitution works)

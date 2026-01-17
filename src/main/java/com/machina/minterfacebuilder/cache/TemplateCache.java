@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.machina.minterfacebuilder.model.ParsedCustomUITemplate;
+import com.machina.minterfacebuilder.model.HTMLCustomUITemplate;
 
 /**
  * Cache manager for parsed Custom UI templates.
@@ -14,14 +14,14 @@ public class TemplateCache {
     /**
      * Cache storage for parsed templates by Path.
      */
-    private static final Map<Path, ParsedCustomUITemplate> cache = new ConcurrentHashMap<>();
+    private static final Map<Path, HTMLCustomUITemplate> cache = new ConcurrentHashMap<>();
 
     /**
      * Get a cached template by path.
      * @param path The file path.
      * @return The cached template, or null if not found.
      */
-    public static ParsedCustomUITemplate get(Path path) {
+    public static HTMLCustomUITemplate get(Path path) {
         return cache.get(path);
     }
 
@@ -30,7 +30,7 @@ public class TemplateCache {
      * @param path The file path.
      * @param template The template to cache.
      */
-    public static void put(Path path, ParsedCustomUITemplate template) {
+    public static void put(Path path, HTMLCustomUITemplate template) {
         if (path != null && template != null) {
             cache.put(path, template);
         }

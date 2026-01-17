@@ -24,25 +24,31 @@ import com.machina.minterfacebuilder.parser.CSSStyleParser;
 public class VariableParser {
     /**
      * Pattern to match variable declarations with quoted values (@Nome = "valor").
+     * Variables must be in PascalCase (start with uppercase letter, no underscores).
+     * Can optionally start with MI or MIB prefix (e.g., @MIBH1, @MIP).
      */
     private static final Pattern VARIABLE_PATTERN_QUOTED = Pattern.compile(
-        "@([a-zA-Z_][a-zA-Z0-9]*)\\s*=\\s*[\"']([^\"']*)[\"']",
+        "@((?:MI|MIB)?[A-Z][a-zA-Z0-9]*)\\s*=\\s*[\"']([^\"']*)[\"']",
         Pattern.CASE_INSENSITIVE
     );
 
     /**
      * Pattern to match variable declarations with unquoted values (@Nome = valor).
+     * Variables must be in PascalCase (start with uppercase letter, no underscores).
+     * Can optionally start with MI or MIB prefix (e.g., @MIBH1, @MIP).
      */
     private static final Pattern VARIABLE_PATTERN_UNQUOTED = Pattern.compile(
-        "@([a-zA-Z_][a-zA-Z0-9]*)\\s*=\\s*([^\\s<>]+)",
+        "@((?:MI|MIB)?[A-Z][a-zA-Z0-9]*)\\s*=\\s*([^\\s<>]+)",
         Pattern.CASE_INSENSITIVE
     );
 
     /**
      * Pattern to match variable references (@Variavel).
+     * Variables must be in PascalCase (start with uppercase letter, no underscores).
+     * Can optionally start with MI or MIB prefix (e.g., @MIBH1, @MIP).
      */
     private static final Pattern VARIABLE_REF_PATTERN = Pattern.compile(
-        "@([a-zA-Z_][a-zA-Z0-9]*)",
+        "@((?:MI|MIB)?[A-Z][a-zA-Z0-9]*)",
         Pattern.CASE_INSENSITIVE
     );
 
@@ -208,9 +214,9 @@ public class VariableParser {
                 int equalsIndex = line.indexOf('=');
                 String varNamePart = line.substring(0, equalsIndex).trim();
                 
-                // Validate variable name format (@Name or @Name_123)
+                // Validate variable name format (@Name or @MIBName - must be PascalCase, no underscores)
                 if (!VARIABLE_REF_PATTERN.matcher(varNamePart).matches()) {
-                    throw new IllegalArgumentException("Invalid script syntax: invalid variable name format. Line: " + line);
+                    throw new IllegalArgumentException("Invalid script syntax: variable name must be in PascalCase (start with uppercase letter, no underscores). Can optionally start with MI or MIB prefix. Line: " + line);
                 }
             }
             

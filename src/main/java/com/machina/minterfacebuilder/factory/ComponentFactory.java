@@ -201,23 +201,23 @@ public class ComponentFactory {
                 return ComponentBuilder.create("$C.@DropdownBox");
 
             case "label":
-                return ComponentBuilder.create("@_MI_label");
+                return ComponentBuilder.create("@MIBLabel");
             case "p":
-                return ComponentBuilder.create("@_MI_p");
+                return ComponentBuilder.create("@MIBP");
             case "span":
-                return ComponentBuilder.create("@_MI_span");
+                return ComponentBuilder.create("@MIBSpan");
             case "h1":
-                return ComponentBuilder.create("@_MI_h1");
+                return ComponentBuilder.create("@MIBH1");
             case "h2":
-                return ComponentBuilder.create("@_MI_h2");
+                return ComponentBuilder.create("@MIBH2");
             case "h3":
-                return ComponentBuilder.create("@_MI_h3");
+                return ComponentBuilder.create("@MIBH3");
             case "h4":
-                return ComponentBuilder.create("@_MI_h4");
+                return ComponentBuilder.create("@MIBH4");
             case "h5":
-                return ComponentBuilder.create("@_MI_h5");
+                return ComponentBuilder.create("@MIBH5");
             case "h6":
-                return ComponentBuilder.create("@_MI_h6");
+                return ComponentBuilder.create("@MIBH6");
 
             case "img":
                 return ComponentBuilder.create("Image");

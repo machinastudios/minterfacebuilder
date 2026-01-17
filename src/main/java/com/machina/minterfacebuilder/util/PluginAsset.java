@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
  *         // Parse the template using InterfaceBuilder.parse() (not parseAsset)
  *         // because we already have a resolved Path
  *         try {
- *             ParsedCustomUITemplate template = InterfaceBuilder.parse(uiPath);
+ *             HTMLCustomUITemplate template = InterfaceBuilder.parse(uiPath);
  *             // Use template...
  *         } catch (Exception e) {
  *             getLogger().severe("Failed to load UI: " + e.getMessage());
@@ -44,30 +44,34 @@ import javax.annotation.Nullable;
  */
 public class PluginAsset {
     /**
-     * Resolve an asset path from a JavaPlugin instance.
+     * Get the root Path of a plugin's AssetPack.
      * <p>
-     * This method obtains the plugin's AssetPack and resolves the given path
-     * relative to the pack's root. This is the recommended way to load assets
-     * from plugins/mods, as {@code AssetModule.findAssetPackForPath()} may not
-     * work correctly for mod assets.
+     * This method obtains the plugin's AssetPack and returns its root path.
+     * You can then use {@link Path#resolve(String)} to resolve specific asset paths.
      * </p>
+     * <p>
+     * <b>Example usage:</b>
+     * </p>
+     * <pre>
+     * Path packRoot = PluginAsset.of(this);
+     * if (packRoot != null) {
+     *     Path uiPath = packRoot.resolve("Common/UI/Test.html");
+     *     HTMLCustomUITemplate template = InterfaceBuilder.parse(uiPath);
+     * }
+     * </pre>
      * <p>
      * <b>Note:</b> This method requires the plugin to have {@code "includesAssetPack": true}
      * in its manifest.json. If the AssetPack is not found, returns null.
      * </p>
      *
-     * @param plugin The JavaPlugin instance to resolve the asset from.
-     * @param assetPath The relative path to the asset within the plugin's AssetPack (e.g., "Common/UI/Test.html").
-     * @return The resolved Path to the asset, or null if the AssetPack is not found or AssetModule is unavailable.
-     * @throws IllegalArgumentException If plugin or assetPath is null.
+     * @param plugin The JavaPlugin instance to get the AssetPack root from.
+     * @return The root Path of the plugin's AssetPack, or null if the AssetPack is not found or AssetModule is unavailable.
+     * @throws IllegalArgumentException If plugin is null.
      */
     @Nullable
-    public static Path of(@Nonnull Object plugin, @Nonnull String assetPath) {
+    public static Path of(@Nonnull Object plugin) {
         if (plugin == null) {
             throw new IllegalArgumentException("Plugin cannot be null");
-        }
-        if (assetPath == null) {
-            throw new IllegalArgumentException("Asset path cannot be null");
         }
 
         try {
@@ -108,12 +112,53 @@ public class PluginAsset {
                 .getMethod("getRoot")
                 .invoke(assetPack);
 
-            // Resolve the asset path relative to the pack root
-            return packRoot.resolve(assetPath).normalize();
+            return packRoot;
         } catch (Exception e) {
             // AssetModule not available, reflection failed, or plugin doesn't have AssetPack
             // Return null to indicate failure
             return null;
         }
+    }
+
+    /**
+     * Resolve an asset path from a JavaPlugin instance.
+     * <p>
+     * This method obtains the plugin's AssetPack and resolves the given path
+     * relative to the pack's root. This is the recommended way to load assets
+     * from plugins/mods, as {@code AssetModule.findAssetPackForPath()} may not
+     * work correctly for mod assets.
+     * </p>
+     * <p>
+     * <b>Note:</b> This method requires the plugin to have {@code "includesAssetPack": true}
+     * in its manifest.json. If the AssetPack is not found, returns null.
+     * </p>
+     * <p>
+     * <b>Example usage:</b>
+     * </p>
+     * <pre>
+     * Path uiPath = PluginAsset.of(this, "Common/UI/Test.html");
+     * if (uiPath != null) {
+     *     HTMLCustomUITemplate template = InterfaceBuilder.parse(uiPath);
+     * }
+     * </pre>
+     *
+     * @param plugin The JavaPlugin instance to resolve the asset from.
+     * @param assetPath The relative path to the asset within the plugin's AssetPack (e.g., "Common/UI/Test.html").
+     * @return The resolved Path to the asset, or null if the AssetPack is not found or AssetModule is unavailable.
+     * @throws IllegalArgumentException If plugin or assetPath is null.
+     */
+    @Nullable
+    public static Path of(@Nonnull Object plugin, @Nonnull String assetPath) {
+        if (assetPath == null) {
+            throw new IllegalArgumentException("Asset path cannot be null");
+        }
+
+        Path packRoot = of(plugin);
+        if (packRoot == null) {
+            return null;
+        }
+
+        // Resolve the asset path relative to the pack root
+        return packRoot.resolve(assetPath).normalize();
     }
 }
