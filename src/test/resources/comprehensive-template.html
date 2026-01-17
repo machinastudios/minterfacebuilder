@@ -1,0 +1,102 @@
+<script type="text/customui">
+@Title = "Comprehensive Test Page"
+@ButtonText = "Click Me"
+@ButtonColor = "#4CAF50"
+@Subtitle = "This is a comprehensive test"
+@Enabled = true
+$C = "../Common.ui"
+$Sounds = "Sounds.ui"
+Padding = 20
+</script>
+
+<div id="main-container" style="padding: @Padding; background: #f0f0f0; width: 100%">
+    <!-- Headings -->
+    <h1 id="title" style="color: @ButtonColor; font-weight: bold; text-align: center">@Title</h1>
+    <span :text="@Title" :padding="(Left: 10)" m-show="true" />
+    <div m-if="@Enabled">This div is only visible if @Enabled is true</div>
+    <h2 id="subtitle" style="color: #666; text-align: center">@Subtitle</h2>
+    <h3 id="heading3">Heading 3</h3>
+    <h4 id="heading4">Heading 4</h4>
+    <h5 id="heading5">Heading 5</h5>
+    <h6 id="heading6">Heading 6</h6>
+    
+    <!-- Labels and text -->
+    <label id="welcome-label" style="color: #333; font-size: 16px">Welcome to the test page!</label>
+    <p id="description" style="color: #666; margin-top: 10px">This is a paragraph with some text content.</p>
+    <span id="span-text" style="color: #999">Span text</span>
+    
+    <!-- Buttons -->
+    <button id="primary-button" style="background: @ButtonColor; color: #ffffff; padding: 10px 20px; margin: 10px 0px">@ButtonText</button>
+    <button id="secondary-button" text="Secondary Button" style="background: #2196F3; color: #ffffff; padding: 10px 20px"></button>
+    
+    <!-- Inputs - all types -->
+    <input id="text-input" type="text" placeholder="Enter text here" value="Default value" maxlength="100" readonly style="width: 100%; padding: 8px; margin: 10px 0px"></input>
+    <input id="number-input" type="number" placeholder="Enter a number" maxlength="10" style="width: 100%; padding: 8px"></input>
+    <input id="password-input" type="password" placeholder="Enter password" maxlength="50" style="width: 100%; padding: 8px; margin: 10px 0px"></input>
+    <input id="color-input" type="color" value="#4CAF50" style="width: 100px; height: 40px; margin: 10px 0px"></input>
+    <input id="checkbox-input" type="checkbox" label="I agree to terms" checked value="true" style="margin: 10px 0px"></input>
+    
+    <!-- Textarea -->
+    <textarea id="textarea-input" placeholder="Enter multiline text" maxlength="500" readonly style="width: 100%; height: 100px; padding: 8px; margin: 10px 0px"></textarea>
+    
+    <!-- Select/Dropdown -->
+    <select id="dropdown-input" style="width: 100%; padding: 8px; margin: 10px 0px">
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+    </select>
+    
+    <!-- Images -->
+    <img id="test-image" src="assets/test.png" alt="Test Image" style="width: 200px; height: 200px; margin: 20px 0px"></img>
+    
+    <!-- Container tags -->
+    <section id="section-container" style="padding: 10px; margin: 10px 0px">
+        <label>Section container</label>
+    </section>
+    <article id="article-container" style="padding: 10px">
+        <label>Article container</label>
+    </article>
+    <header id="header-container" style="padding: 10px">
+        <label>Header container</label>
+    </header>
+    <footer id="footer-container" style="padding: 10px">
+        <label>Footer container</label>
+    </footer>
+    <nav id="nav-container" style="padding: 10px">
+        <label>Nav container</label>
+    </nav>
+    <main id="main-container-inner" style="padding: 10px">
+        <label>Main container</label>
+    </main>
+    
+    <!-- Lists -->
+    <ul id="unordered-list" style="padding: 10px">
+        <li>List item 1</li>
+        <li>List item 2</li>
+    </ul>
+    <ol id="ordered-list" style="padding: 10px">
+        <li>Ordered item 1</li>
+        <li>Ordered item 2</li>
+    </ol>
+    
+    <!-- Using Common.ui components -->
+    <$C.TextField id="common-text-field" text="Common TextField" style="margin: 10px 0px"></$C.TextField>
+    <$C.TextButton id="common-button" text="Common Button" style="background: @ButtonColor"></$C.TextButton>
+    
+    <!-- Direct Hytale component names -->
+    <TextField id="direct-textfield" placeholder="Direct TextField" style="margin: 10px 0px"></TextField>
+    <NumberField id="direct-numberfield" placeholder="Direct NumberField" style="margin: 10px 0px"></NumberField>
+    
+    <!-- Custom components -->
+    <qrcode id="qr-code" data="https://example.com" size="150"></qrcode>
+    
+    <!-- i18n paths -->
+    <button id="i18n-button" text="%ui.button.submit" style="background: #FF9800"></button>
+    <label id="i18n-label" text="%messages.welcome" style="color: #333"></label>
+    
+    <!-- Nested containers -->
+    <div id="inner-container" style="background: white; padding: 15px; margin: 20px 0px">
+        <label id="inner-label" style="color: #333; font-weight: bold">Inner Container</label>
+        <button id="inner-button" text="Inner Button" style="background: #9C27B0; color: #ffffff; margin-top: 10px"></button>
+    </div>
+</div>

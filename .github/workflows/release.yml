@@ -1,0 +1,61 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Get version from pom.xml
+        id: get_version
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Built version: $VERSION"
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          body: |
+            Automatic release from master branch.
+            
+            ## Artifacts
+            
+            - `minterfacebuilder-${{ steps.get_version.outputs.version }}.jar` - Main JAR file
+            - `minterfacebuilder-${{ steps.get_version.outputs.version }}-sources.jar` - Source JAR
+            - `minterfacebuilder-${{ steps.get_version.outputs.version }}-javadoc.jar` - Javadoc JAR
+            
+            ## Installation
+            
+            See README.md for installation instructions.
+          draft: false
+          prerelease: false
+          files: |
+            target/minterfacebuilder-${{ steps.get_version.outputs.version }}.jar
+            target/minterfacebuilder-${{ steps.get_version.outputs.version }}-sources.jar
+            target/minterfacebuilder-${{ steps.get_version.outputs.version }}-javadoc.jar

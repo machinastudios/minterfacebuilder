@@ -1,0 +1,35 @@
+<script type="text/customui">
+@Title = "Welcome to MInterfaceBuilder"
+@ButtonText = "Click Me"
+@ButtonColor = "#4CAF50"
+@Subtitle = "This is a demo page"
+</script>
+
+<div id="container" style="padding: 20px">
+    <label id="title" style="font-weight: bold; color: @ButtonColor; text-align: center">
+        @Title
+    </label>
+    
+    <label id="subtitle" style="text-align: center; color: #666666">
+        @Subtitle
+    </label>
+    
+    <input id="InputField" type="text" placeholder="Enter your name" maxlength="50" style="width: 300px; height: 30px" />
+    
+    <select id="DropdownField">
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+    </select>
+    
+    <input id="AgreeCheckbox" type="checkbox" label="I agree to the terms" value="true" />
+    
+    <input id="ColorPicker" type="color" value="#4CAF50" />
+    
+    <button id="SubmitButton">Submit</button>
+    <button id="CancelButton">Cancel</button>
+    
+    <label id="Error" style="color: #bb3333" visible="false"></label>
+    
+    <label id="i18nLabel" text="%ui.messages.welcome" style="color: #333333" />
+</div>
