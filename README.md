@@ -227,8 +227,8 @@ Values starting with `%` are treated as literal i18n paths and are not processed
 ```java
 String html = """
     <div id="container">
-        <button id="submit" text="%ui.button.submit"></button>
-        <label text="%messages.welcome"></label>
+        <button id="submit" :text="%ui.button.submit"></button>
+        <label :text="%messages.welcome"></label>
     </div>
     """;
 
@@ -590,9 +590,9 @@ Variables can be used in any attribute value:
 Values starting with `%` are treated as literal i18n paths and are not processed for variable substitution. This allows you to use i18n paths directly in your HTML templates:
 
 ```html
-<button text="%ui.button.submit" />
-<label text="%messages.welcome" />
-<div tooltip="%tooltips.help" />
+<button :text="%ui.button.submit" />
+<label :text="%messages.welcome" />
+<div :tooltip="%tooltips.help" />
 ```
 
 i18n paths are passed directly to components without modification, allowing your i18n system to resolve them at runtime. They work in any HTML attribute value and are case-sensitive.
@@ -826,6 +826,104 @@ Extends `ComponentBuilder` - all ComponentBuilder methods are available.
 - Nested style objects are not fully supported
 - Some HTML features may not have direct Custom UI equivalents
 - Percentage-based sizes are approximated
+
+## Roadmap
+
+The following features are planned for future releases:
+
+### Event Binding with Lambda
+
+Add support for binding events directly in Java code using lambda expressions:
+
+```java
+PAGE_TEMPLATE.on(Event.Activating, "#Selector", () -> {
+    // Do something when the component is activated
+    getLogger().info("Button clicked!");
+});
+```
+
+This will provide a type-safe way to handle UI events without manually using `UICommandBuilder`.
+
+### Dynamic Interface Updates
+
+Add methods to update interface components after rendering:
+
+```java
+// Update a component by ID - supports both HTML and Hytale properties
+PAGE_TEMPLATE.getElementById("Selector").update("text", "New Text"); // HTML property
+PAGE_TEMPLATE.getElementById("Selector").update("Text", "New Text"); // Hytale property (same result)
+PAGE_TEMPLATE.getElementById("Selector").update("visible", false); // HTML property
+PAGE_TEMPLATE.getElementById("Selector").update("Visible", false); // Hytale property (same result)
+
+// Update using CSS selector (querySelector)
+PAGE_TEMPLATE.querySelector("#Group #Selector").update("visible", false);
+PAGE_TEMPLATE.querySelector(".myClass").update("color", "#FF0000"); // HTML property → maps to TextColor
+
+// Update style properties using HTML names
+PAGE_TEMPLATE.querySelector(".myClass").update("font-size", 16); // HTML property → maps to FontSize in Style
+PAGE_TEMPLATE.querySelector(".myClass").update("text-align", "center"); // HTML property → maps to HorizontalAlignment
+```
+
+These methods will be simple wrappers around `UICommandBuilder.set(selector, value)`, making it easier to update UI components dynamically. HTML properties (like `color`, `font-size`, `text-align`) will be automatically mapped to their corresponding Hytale Custom UI properties (like `TextColor`, `Style.FontSize`, `Style.HorizontalAlignment`) using the same mapping logic used during HTML parsing.
+
+#### Class Selectors Support
+
+Add support for virtual class selectors to select multiple elements at once:
+
+```html
+<button id="btn1" class="primary-button">Button 1</button>
+<button id="btn2" class="primary-button">Button 2</button>
+<button id="btn3" class="secondary-button">Button 3</button>
+```
+
+```java
+// Update all elements with the same class at once - supports both HTML and Hytale properties
+PAGE_TEMPLATE.querySelectorAll(".primary-button").update("visible", false); // HTML property
+PAGE_TEMPLATE.querySelectorAll(".primary-button").update("Visible", false); // Hytale property (same result)
+PAGE_TEMPLATE.querySelectorAll(".secondary-button").update("color", "#FF0000"); // HTML property → maps to TextColor
+PAGE_TEMPLATE.querySelectorAll(".secondary-button").update("font-size", 18); // HTML property → maps to Style.FontSize
+
+// Class selectors will be mapped internally to multiple element selectors
+// This provides a convenient way to update groups of components simultaneously
+// HTML properties are automatically mapped to Hytale properties using the same mapping logic
+```
+
+Class selectors will be a virtual feature that maps internally to individual element IDs, allowing you to select and update multiple components at once without manually iterating through each one.
+
+### Automatic Input Value Reading
+
+Automatically read values from input fields into variables using the `name` attribute:
+
+```html
+<input type="text" id="username" name="username" />
+<input type="password" id="password" name="password" />
+<input type="number" id="age" name="user.age" />
+```
+
+When the user types in these fields, the values will automatically be stored in an internal `HashMap<String, Object>` using the `name` attribute value as the key. You can access these values programmatically:
+
+```java
+// Get all input values
+Map<String, Object> formData = PAGE_TEMPLATE.getInputValues();
+
+// Get specific value by name
+String username = (String) PAGE_TEMPLATE.getInputValue("username");
+String password = (String) PAGE_TEMPLATE.getInputValue("password");
+Integer age = (Integer) PAGE_TEMPLATE.getInputValue("user.age");
+```
+
+The `name` attribute supports dot notation (e.g., `name="user.age"`) for nested structures, which will be stored in the HashMap accordingly.
+
+### Server-Side m-if
+
+Add support for server-side conditional rendering using `m-if`:
+
+```html
+<div m-if="@IsAdmin">Admin Panel</div>
+<div m-if="@IsLoggedIn">User Dashboard</div>
+```
+
+The `m-if` attribute will evaluate server-side conditions and only render components when the condition is true, reducing the amount of UI data sent to clients.
 
 ## Contributing
 
