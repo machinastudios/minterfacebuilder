@@ -541,8 +541,13 @@ public class InterfaceBuilder {
 
         // Handle Group with Text attribute - create Label child instead
         // Group does not support Text property, so we need to create a Label child
+        // Check for both "div" (HTML tag) and "group" (Hytale component name)
         Object groupTextValue = null;
-        if (tagName.equals("group")) {
+        boolean isGroupComponent = tagName.equals("group") || tagName.equals("div") || 
+                                 tagName.equals("section") || tagName.equals("article") ||
+                                 tagName.equals("header") || tagName.equals("footer") ||
+                                 tagName.equals("nav") || tagName.equals("main");
+        if (isGroupComponent) {
             String textValue = attributes.get("Text");
             if (textValue == null) {
                 textValue = attributes.get("text"); // Fallback to lowercase
@@ -597,7 +602,7 @@ public class InterfaceBuilder {
         context.position = contentStart;
 
         // If Group has Text attribute, create a Label child first
-        if (tagName.equals("group") && groupTextValue != null) {
+        if (isGroupComponent && groupTextValue != null) {
             ComponentBuilder labelChild = ComponentBuilder.create("Label");
             // If groupTextValue is a String, use it directly; otherwise convert to String
             String textStr = groupTextValue instanceof String ? (String) groupTextValue : groupTextValue.toString();
@@ -724,7 +729,9 @@ public class InterfaceBuilder {
             String textStr = textContent.toString().trim();
             if (!textStr.isEmpty() && childComponents.isEmpty()) {
                 // Group does not support Text property - create Label child instead
-                if (tagName.equals("group")) {
+                // Check for both "div" (HTML tag) and "group" (Hytale component name)
+                // Reuse isGroupComponent already declared above
+                if (isGroupComponent) {
                     ComponentBuilder labelChild = ComponentBuilder.create("Label");
                     labelChild.setProperty("Text", textStr);
                     component.appendChild(labelChild);
@@ -1091,6 +1098,13 @@ public class InterfaceBuilder {
                 break;
 
             case "group":
+            case "div":
+            case "section":
+            case "article":
+            case "header":
+            case "footer":
+            case "nav":
+            case "main":
                 // Group does not support Text property directly
                 // If Text is present in attributes, don't apply it here
                 // It will be handled after applyAttributesToComponent in parseElement
