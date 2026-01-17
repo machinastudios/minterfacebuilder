@@ -37,6 +37,13 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/HytaleServer.jar</systemPath>
         </dependency>
+
+        <!-- ZXing for QR code generation -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.1</version>
+        </dependency>
     </dependencies>
 
     <build>

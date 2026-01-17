@@ -2,6 +2,11 @@ package com.machina.minterfacebuilder.util.customui.components;
 
 import java.util.Map;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
 
 /**
@@ -56,78 +61,167 @@ public class QRCodeComponent extends ComponentBuilder {
 
     /**
      * Generate QR code squares.
-     * Tries to use QRCodeUtil from mauth if available, otherwise creates a placeholder.
      * @param data The data to encode.
      * @param blockSize The size of each block.
      * @param attributes Additional attributes.
      */
     private void generateQRCode(String data, int blockSize, Map<String, String> attributes) {
-        // Try to use QRCodeUtil from mauth if available
-        try {
-            Class<?> qrCodeUtilClass = Class.forName("com.machina.mauth.utils.QRCodeUtil");
-            java.lang.reflect.Method generateMethod = qrCodeUtilClass.getMethod(
-                "generateCustomUIQRCode", 
-                String.class, 
-                Map.class
-            );
-
-            Map<String, Object> props = new java.util.HashMap<>();
-            props.put("BlockSize", blockSize);
-            
-            // Copy other properties from attributes
-            for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                String key = entry.getKey().toLowerCase();
-                if (!key.equals("data") && !key.equals("value") && !key.equals("blocksize") && !key.equals("block-size") && !key.equals("id")) {
-                    try {
-                        // Try to parse as number
-                        props.put(key, Integer.parseInt(entry.getValue()));
-                    } catch (NumberFormatException e) {
-                        // Use as string
-                        props.put(key, entry.getValue());
-                    }
-                }
-            }
-
-            ComponentBuilder qrCodeBuilder = (ComponentBuilder) generateMethod.invoke(null, data, props);
-            
-            // Use the generated QR code builder
-            if (qrCodeBuilder != null) {
-                // The QR code builder is already a Group with all the squares as children
-                // We need to copy its structure to this component
-                // Since we can't access private fields, we'll build it and append the result
-                // as a string reference, or we can use reflection to copy
-                
-                // Simple approach: append the QR code builder as a child
-                // This will include all its children in the final output
-                this.appendChild(qrCodeBuilder);
-                
-                return;
-            }
-        } catch (Exception e) {
-            // QRCodeUtil not available, use placeholder implementation
-        }
-
-        // Fallback: Create a placeholder
-        this.addComment("QR Code component - data: " + data + " (QRCodeUtil not available)");
-        
-        // Apply properties from attributes
+        // Build properties map from attributes
         Map<String, Object> props = new java.util.HashMap<>();
         props.put("BlockSize", blockSize);
         
+        // Copy other properties from attributes
         for (Map.Entry<String, String> entry : attributes.entrySet()) {
             String key = entry.getKey().toLowerCase();
             if (!key.equals("data") && !key.equals("value") && !key.equals("blocksize") && !key.equals("block-size") && !key.equals("id")) {
                 try {
                     // Try to parse as number
                     props.put(key, Integer.parseInt(entry.getValue()));
-                } catch (NumberFormatException ex) {
+                } catch (NumberFormatException e) {
                     // Use as string
                     props.put(key, entry.getValue());
                 }
             }
         }
+
+        // Apply properties to this component
         if (!props.isEmpty()) {
             this.setProperties(props);
         }
+
+        // Get the matrix
+        BitMatrix matrix = generateMatrix(data);
+
+        // If the matrix is null, create a placeholder comment
+        if (matrix == null) {
+            this.addComment("QR Code component - data: " + data + " (generation failed)");
+            return;
+        }
+
+        // Iterate over the matrix rows
+        for (int y = 0; y < matrix.getHeight(); y++) {
+            // Iterate over the matrix columns
+            for (int x = 0; x < matrix.getWidth(); x++) {
+                String color = matrix.get(x, y) ? "black" : "white";
+
+                // If the color is white, skip the square
+                if (color.equals("white")) {
+                    continue;
+                }
+
+                SquareCustomUIComponent square = new SquareCustomUIComponent(color, blockSize, blockSize);
+
+                // Get the anchor property
+                var anchor = square.<Map<String, Object>>getProperty("Anchor");
+
+                // Set the X and Y anchor position
+                anchor.put("Top", y * blockSize);
+                anchor.put("Left", x * blockSize);
+
+                // Append the square to this component
+                this.appendChild(square);
+            }
+
+            // Add one white square at the end of each line
+            SquareCustomUIComponent whiteSquare = new SquareCustomUIComponent("white", blockSize, blockSize);
+            var anchor = whiteSquare.<Map<String, Object>>getProperty("Anchor");
+            anchor.put("Top", y * blockSize);
+            anchor.put("Left", (matrix.getWidth() - 1) * blockSize);
+            this.appendChild(whiteSquare);
+        }
+    }
+
+    /**
+     * Generate a custom UI QR code from the given data.
+     * @param data The data to encode.
+     * @return The custom UI QR code component builder.
+     */
+    public static ComponentBuilder withData(String data) {
+        return generateCustomUIQRCode(data, Map.of());
+    }
+
+    /**
+     * Generate a custom UI QR code from the given data.
+     * @param data The data to encode.
+     * @param properties The properties to use for the QR code.
+     * @return The custom UI QR code component builder.
+     */
+    public static ComponentBuilder generateCustomUIQRCode(String data, Map<String, Object> properties) {
+        // Get the BlockSize property from the properties map
+        int blockSize = properties.get("BlockSize") != null ? (int) properties.get("BlockSize") : DEFAULT_BLOCK_SIZE;
+
+        // Create a new group for the QR code
+        ComponentBuilder group = ComponentBuilder.create("Group")
+            .setProperties(properties);
+
+        // Get the matrix
+        BitMatrix matrix = generateMatrix(data);
+
+        // If the matrix is null, return null
+        if (matrix == null) {
+            return null;
+        }
+
+        // Iterate over the matrix rows
+        for (int y = 0; y < matrix.getHeight(); y++) {
+            // Iterate over the matrix columns
+            for (int x = 0; x < matrix.getWidth(); x++) {
+                String color = matrix.get(x, y) ? "black" : "white";
+
+                // If the color is white, skip the square
+                if (color.equals("white")) {
+                    continue;
+                }
+
+                SquareCustomUIComponent square = new SquareCustomUIComponent(color, blockSize, blockSize);
+
+                // Get the anchor property
+                var anchor = square.<Map<String, Object>>getProperty("Anchor");
+
+                // Set the X and Y anchor position
+                anchor.put("Top", y * blockSize);
+                anchor.put("Left", x * blockSize);
+
+                // Append the square to the group
+                group.appendChild(square);
+            }
+
+            // Add one white square at the end of each line
+            SquareCustomUIComponent whiteSquare = new SquareCustomUIComponent("white", blockSize, blockSize);
+            var anchor = whiteSquare.<Map<String, Object>>getProperty("Anchor");
+            anchor.put("Top", y * blockSize);
+            anchor.put("Left", (matrix.getWidth() - 1) * blockSize);
+            group.appendChild(whiteSquare);
+        }
+
+        return group;
+    }
+
+    /**
+     * Generate a matrix from the given data.
+     * @param data The data to encode.
+     * @return The matrix.
+     */
+    private static BitMatrix generateMatrix(String data) {
+        QRCodeWriter writer = new QRCodeWriter();
+        BitMatrix matrix;
+
+        try {
+            // Encode the data into a QR code
+            matrix = writer.encode(
+                data,
+                BarcodeFormat.QR_CODE,
+                40,
+                40,
+                Map.of(
+                    EncodeHintType.MARGIN, 1
+                )
+            );
+        } catch (WriterException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return matrix;
     }
 }
