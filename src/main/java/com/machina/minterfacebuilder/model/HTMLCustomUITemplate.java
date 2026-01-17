@@ -36,6 +36,16 @@ public class HTMLCustomUITemplate extends ComponentBuilder {
     private final Set<String> usedHtmlTags;
 
     /**
+     * Aliases used in the template (e.g., "Common", "C") for generating alias declarations.
+     */
+    private Set<String> usedAliases;
+
+    /**
+     * Custom aliases map (e.g., "Common" -> "../Common.ui") for generating alias declarations.
+     */
+    private Map<String, String> customAliasesMap;
+
+    /**
      * Default path for saving/loading template files (e.g., config/templates/).
      */
     @Nullable
@@ -86,7 +96,19 @@ public class HTMLCustomUITemplate extends ComponentBuilder {
         
         this.variables = new HashMap<>(variables);
         this.usedHtmlTags = new HashSet<>(usedHtmlTags != null ? usedHtmlTags : new HashSet<>());
+        this.usedAliases = new HashSet<>();
+        this.customAliasesMap = new HashMap<>();
         this.defaultPath = null;
+    }
+
+    /**
+     * Set used aliases and their paths for output generation.
+     * @param usedAliases Set of alias names used in the template (e.g., "Common", "C").
+     * @param customAliasesMap Map of alias names to their paths (e.g., "Common" -> "../Common.ui").
+     */
+    public void setUsedAliases(Set<String> usedAliases, Map<String, String> customAliasesMap) {
+        this.usedAliases = usedAliases != null ? new HashSet<>(usedAliases) : new HashSet<>();
+        this.customAliasesMap = customAliasesMap != null ? new HashMap<>(customAliasesMap) : new HashMap<>();
     }
 
     /**
@@ -512,6 +534,27 @@ public class HTMLCustomUITemplate extends ComponentBuilder {
     private String buildWithAliasesAndVariables(ComponentBuilderSettings settings) {
         StringBuilder output = new StringBuilder();
 
+        // Build alias declarations for used aliases (e.g., $Common = "../Common.ui";)
+        if (this.usedAliases != null && !this.usedAliases.isEmpty() && this.customAliasesMap != null) {
+            for (String aliasName : this.usedAliases) {
+                String aliasPath = this.customAliasesMap.get(aliasName);
+                // If alias not found in customAliasesMap, use default path for Common/C
+                if (aliasPath == null) {
+                    if (aliasName.equalsIgnoreCase("Common")) {
+                        aliasPath = "../Common.ui";
+                    } else if (aliasName.equalsIgnoreCase("C")) {
+                        aliasPath = "../Common.ui";
+                    }
+                }
+                if (aliasPath != null) {
+                    output.append("$").append(aliasName).append(" = \"").append(aliasPath).append("\";\n");
+                }
+            }
+            if (!this.usedAliases.isEmpty()) {
+                output.append("\n");
+            }
+        }
+
         // Build aliases for HTML tags that map to Label (h1-h6, span, p, label)
         // Format: @MIBH1 = Label { Style: (...) }
         Map<HTMLTag, Object> tagToComponentMap = Map.of(
@@ -571,7 +614,7 @@ public class HTMLCustomUITemplate extends ComponentBuilder {
                     output.append("  );\n");
                 }
                 
-                output.append("}\n\n");
+                output.append("};\n\n");
             }
         }
 

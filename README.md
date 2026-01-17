@@ -366,12 +366,19 @@ CSS styles are automatically converted to Custom UI properties:
 
 ### Using Aliases
 
-Reference components from Common.ui using `$C` or `$Common` prefix:
+Reference components from Common.ui using `C` or `Common` prefix (without `$` and `@`):
 
 ```html
-<$C.TextButton id="btn">Click Me</$C.TextButton>
-<$Common.SecondaryTextButton id="cancel">Cancel</$Common.SecondaryTextButton>
+<C.TextButton id="btn">Click Me</C.TextButton>
+<Common.SecondaryTextButton id="cancel">Cancel</Common.SecondaryTextButton>
+<Common.PageOverlay layoutMode="Middle">
+    <Common.DecoratedContainer style="width: 500px">
+        ...
+    </Common.DecoratedContainer>
+</Common.PageOverlay>
 ```
+
+**Note:** The old format `<$Common.@PageOverlay>` is **no longer supported**. Use `Common.PageOverlay` instead.
 
 This creates:
 ```
@@ -382,7 +389,72 @@ $C.@TextButton #btn {
 $C.@SecondaryTextButton #cancel {
     Text: Cancel;
 }
+
+$Common.@PageOverlay {
+    LayoutMode: Middle;
+
+    $Common.@DecoratedContainer {
+        Style: (...);
+        ...
+    }
+}
 ```
+
+The prefix is automatically normalized:
+- `C.` → `$C.@`
+- `Common.` → `$Common.@`
+
+#### JavaScript Imports
+
+You can define aliases using JavaScript import syntax inside `<script type="text/javascript">` tags:
+
+```html
+<script type="text/javascript">
+import Common from "@/Common.ui";
+</script>
+
+<Common.PageOverlay layoutMode="Middle">
+    <Common.DecoratedContainer style="width: 500px">
+        <Common.Title text="Test Template" />
+        <Common.Button text="Click me" />
+    </Common.DecoratedContainer>
+</Common.PageOverlay>
+```
+
+This automatically generates alias declarations in the `.ui` file:
+
+```
+$Common = "../Common.ui";
+
+$Common.@PageOverlay {
+    LayoutMode: Middle;
+
+    $Common.@DecoratedContainer {
+        Style: (...);
+        
+        $Common.@Title {
+            Text: "Test Template";
+        }
+        
+        $Common.@Button {
+            Text: "Click me";
+        }
+    }
+}
+```
+
+**Import path format:**
+- `@/` is automatically replaced with `../` (relative path from Pages directory to parent)
+- Example: `import Common from "@/Common.ui";` → `$Common = "../Common.ui";`
+- The alias name (e.g., `Common`, `C`) can be used in HTML tags (e.g., `<Common.PageOverlay>`)
+
+**Note:** Aliases defined via JavaScript imports are automatically tracked and declared in the output `.ui` file when used in the HTML.
+
+**Important Limitation:** Currently, Hytale's CustomUI `.appendInline` method does not support aliases. This means:
+- You cannot import aliases within `.appendInline` calls
+- You cannot use `$Alias.@Component` syntax in content added via `.appendInline`, even if the alias is imported in the main page
+
+This limitation has been reported to the Hytale development team. If you need to use components with aliases, you must define them in the main `.ui` file rather than using `.appendInline`.
 
 ### Using Direct Component Names
 

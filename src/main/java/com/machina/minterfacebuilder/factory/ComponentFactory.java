@@ -94,7 +94,8 @@ public class ComponentFactory {
             // Check for built-in aliases ($C, $Common)
             if (prefix.equalsIgnoreCase("$C") || prefix.equalsIgnoreCase("$Common")) {
                 // Use the original tag name to preserve PascalCase (e.g., TextButton)
-                return ComponentBuilder.create("$C.@" + tagNameOriginal);
+                // Preserve the original prefix ($C or $Common)
+                return ComponentBuilder.create(prefix + ".@" + tagNameOriginal);
             }
             
             // Check for custom aliases (e.g., $C from script, $Sounds, etc.)

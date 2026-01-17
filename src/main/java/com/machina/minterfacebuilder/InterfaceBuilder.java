@@ -34,10 +34,12 @@ public class InterfaceBuilder {
     /**
      * Pattern to match HTML tags with attributes.
      * Supports tags with $Common or $C prefix (e.g., $C.TextButton, $Common.TextButton).
+     * Also supports tags with Common or C prefix (e.g., Common.PageOverlay, C.TextButton)
+     * which will be converted to $Common.@PageOverlay and $C.@TextButton.
      * Supports self-closing tags in format <tag /> or <tag/>.
      */
     private static final Pattern TAG_PATTERN = Pattern.compile(
-        "<(/?)(\\$[a-zA-Z][a-zA-Z0-9]*\\.)?([a-zA-Z][a-zA-Z0-9]*)\\s*([^>]*?)(/?)\\s*>",
+        "<(/?)((?:\\$?[a-zA-Z][a-zA-Z0-9]*)\\.)?([a-zA-Z@][a-zA-Z0-9]*)\\s*([^>]*?)(/?)\\s*>",
         Pattern.CASE_INSENSITIVE
     );
 
@@ -47,6 +49,23 @@ public class InterfaceBuilder {
     private static final Pattern COMMENT_PATTERN = Pattern.compile(
         "<!--.*?-->",
         Pattern.DOTALL
+    );
+
+    /**
+     * Pattern to match JavaScript script tags with type="text/javascript".
+     */
+    private static final Pattern JAVASCRIPT_SCRIPT_PATTERN = Pattern.compile(
+        "<script\\s+type\\s*=\\s*[\"']text/javascript[\"']\\s*>([\\s\\S]*?)</script>",
+        Pattern.CASE_INSENSITIVE | Pattern.DOTALL
+    );
+
+    /**
+     * Pattern to match JavaScript import statements.
+     * Format: import Common from "@/Common.ui";
+     */
+    private static final Pattern IMPORT_PATTERN = Pattern.compile(
+        "import\\s+([a-zA-Z][a-zA-Z0-9]*)\\s+from\\s+[\"']([^\"']+)[\"'];?",
+        Pattern.CASE_INSENSITIVE
     );
 
     /**
@@ -304,11 +323,18 @@ public class InterfaceBuilder {
         StringBuilder scriptContent = new StringBuilder();
         html = VariableParser.extractVariables(html, templateVariables, scriptContent);
 
+        // Extract JavaScript imports from <script type="text/javascript"> tags
+        // Format: import Common from "@/Common.ui"; → $Common = "../Common.ui";
+        Map<String, String> javaScriptAliases = extractJavaScriptImports(html);
+        html = removeJavaScriptScripts(html);
+
         // Extract custom aliases from script content (e.g., $C = "../Common.ui")
         Map<String, String> customAliases = new HashMap<>();
         if (scriptContent.length() > 0) {
             customAliases = CustomUIScriptParser.extractCustomAliases(scriptContent.toString());
         }
+        // Merge JavaScript imports into custom aliases
+        customAliases.putAll(javaScriptAliases);
 
         // Merge provided variables (they override template variables)
         if (variables != null && !variables.isEmpty()) {
@@ -344,11 +370,54 @@ public class InterfaceBuilder {
 
         // Extract used tags from context (created during parsing)
         Set<String> usedHtmlTags = context.usedHtmlTags;
+        Set<String> usedAliases = context.usedAliases;
         
         // Create HTMLCustomUITemplate with variables and used HTML tags
-        return new HTMLCustomUITemplate(componentBuilder, templateVariables, usedHtmlTags);
+        HTMLCustomUITemplate template = new HTMLCustomUITemplate(componentBuilder, templateVariables, usedHtmlTags);
+        // Store used aliases for output generation
+        template.setUsedAliases(usedAliases, customAliases);
+        
+        return template;
     }
 
+
+    /**
+     * Extract JavaScript imports from script tags and convert them to aliases.
+     * Format: import Common from "@/Common.ui"; → $Common = "../Common.ui";
+     * @param html The HTML string.
+     * @return Map of alias names to their paths.
+     */
+    private static Map<String, String> extractJavaScriptImports(String html) {
+        Map<String, String> aliases = new HashMap<>();
+        Matcher scriptMatcher = JAVASCRIPT_SCRIPT_PATTERN.matcher(html);
+        
+        while (scriptMatcher.find()) {
+            String scriptBody = scriptMatcher.group(1).trim();
+            
+            // Extract imports from script content
+            Matcher importMatcher = IMPORT_PATTERN.matcher(scriptBody);
+            while (importMatcher.find()) {
+                String aliasName = importMatcher.group(1); // e.g., "Common"
+                String filePath = importMatcher.group(2); // e.g., "@/Common.ui"
+                
+                // Convert @/ to ../ (relative path from Pages to parent directory)
+                String normalizedPath = filePath.replace("@/", "../");
+                
+                aliases.put(aliasName, normalizedPath);
+            }
+        }
+        
+        return aliases;
+    }
+
+    /**
+     * Remove JavaScript script tags from HTML.
+     * @param html The HTML string.
+     * @return The HTML string with JavaScript script tags removed.
+     */
+    private static String removeJavaScriptScripts(String html) {
+        return JAVASCRIPT_SCRIPT_PATTERN.matcher(html).replaceAll("");
+    }
 
     /**
      * Clear the cache.
@@ -491,6 +560,30 @@ public class InterfaceBuilder {
         String attributesStr = tagMatcher.group(4);
         String selfClosingSlash = tagMatcher.group(5);
         int tagEnd = tagMatcher.end();
+
+        // Normalize prefix: convert Common. to $Common. (ComponentFactory will add @ to tagName)
+        if (commonPrefix != null && !commonPrefix.isEmpty()) {
+            // Remove trailing dot
+            String prefixWithoutDot = commonPrefix.substring(0, commonPrefix.length() - 1);
+            
+            // Track alias usage for output generation
+            // Store original alias name before normalization
+            String originalAlias = prefixWithoutDot;
+            if (!prefixWithoutDot.startsWith("$")) {
+                context.usedAliases.add(prefixWithoutDot); // Track Common or C
+            } else {
+                // Already has $, track without it
+                context.usedAliases.add(prefixWithoutDot.substring(1)); // Track Common or C
+            }
+            
+            // If prefix doesn't start with $, add it
+            if (!prefixWithoutDot.startsWith("$")) {
+                prefixWithoutDot = "$" + prefixWithoutDot;
+            }
+            
+            // Reconstruct prefix with dot (ComponentFactory will handle @ prefix on tagName)
+            commonPrefix = prefixWithoutDot + ".";
+        }
 
         // Parse attributes and substitute variables
         Map<String, String> attributes = HTMLAttributeParser.parseAttributes(attributesStr, context.variables);
@@ -1272,6 +1365,7 @@ public class InterfaceBuilder {
         Map<String, InterfaceVariable> variables;
         Map<String, String> customAliases;
         Set<String> usedHtmlTags;
+        Set<String> usedAliases;
 
         ParseContext(String html, Map<String, InterfaceVariable> variables, Map<String, String> customAliases) {
             this.html = html;
@@ -1279,6 +1373,7 @@ public class InterfaceBuilder {
             this.variables = variables;
             this.customAliases = customAliases != null ? customAliases : new HashMap<>();
             this.usedHtmlTags = new java.util.HashSet<>();
+            this.usedAliases = new java.util.HashSet<>();
         }
     }
 }
