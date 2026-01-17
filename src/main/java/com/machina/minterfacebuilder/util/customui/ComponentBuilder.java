@@ -7,6 +7,13 @@ import java.util.Map;
 
 public class ComponentBuilder {
     /**
+     * Root directory path used for UI file imports.
+     * Default value: "../"
+     * This is prepended to all UI file import paths.
+     */
+    private static String ROOT_DIR = "../";
+
+    /**
      * The indent character.
      */
     private static final String INDENT = "  ";
@@ -153,13 +160,27 @@ public class ComponentBuilder {
         Map<String, Object> properties = new HashMap<>(this.properties);
 
         //#region Component styles
-        // Build Style as a Map (not a string) so it's formatted correctly without quotes
-        Map<String, Object> styleMap = new HashMap<>();
+        // Get existing Style Map from properties (if any) - this may contain nested Maps
+        Map<String, Object> styleMap = null;
+        Object existingStyle = this.properties.get("Style");
+        if (existingStyle instanceof Map<?, ?>) {
+            // Preserve existing Style Map which may contain nested Maps (like Sounds, EntrySounds)
+            // Deep copy to preserve Maps as Maps (not as references that might get converted)
+            styleMap = new HashMap<>();
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) existingStyle).entrySet()) {
+                // Preserve Maps as-is (don't convert to String)
+                // HashMap constructor already preserves Map references, so just copy directly
+                styleMap.put(entry.getKey().toString(), entry.getValue());
+            }
+        } else {
+            // Build new Style Map from scratch
+            styleMap = new HashMap<>();
+        }
 
         // Get the "Styles" property
         String stylesFromProperties = (String) this.properties.get("Styles");
 
-        // Add the styles from the properties to the map
+        // Add the styles from the properties to the map (only if not already present and not a Map)
         if (stylesFromProperties != null) {
             String[] stylesFromPropertiesArray = stylesFromProperties.split(",");
             for (String style : stylesFromPropertiesArray) {
@@ -168,24 +189,29 @@ public class ComponentBuilder {
                 int colonIndex = style.indexOf(':');
                 if (colonIndex != -1) {
                     String key = style.substring(0, colonIndex).trim();
-                    String value = style.substring(colonIndex + 1).trim();
-                    // Remove quotes if present
-                    if (value.startsWith("\"") && value.endsWith("\"")) {
-                        value = value.substring(1, value.length() - 1);
+                    // Don't overwrite Maps with Strings
+                    if (!styleMap.containsKey(key) || !(styleMap.get(key) instanceof Map<?, ?>)) {
+                        String value = style.substring(colonIndex + 1).trim();
+                        // Remove quotes if present
+                        if (value.startsWith("\"") && value.endsWith("\"")) {
+                            value = value.substring(1, value.length() - 1);
+                        }
+                        styleMap.put(key, value);
                     }
-                    styleMap.put(key, value);
                 }
             }
         }
 
-        // Add the styles to the map
+        // Add the styles to the map (only if not already present from Style property and not a Map)
         for (Map.Entry<String, String> entry : this.styles.entrySet()) {
-            String value = entry.getValue();
-            // Remove quotes if present
-            if (value.startsWith("\"") && value.endsWith("\"")) {
-                value = value.substring(1, value.length() - 1);
+            if (!styleMap.containsKey(entry.getKey()) || !(styleMap.get(entry.getKey()) instanceof Map<?, ?>)) {
+                String value = entry.getValue();
+                // Remove quotes if present
+                if (value.startsWith("\"") && value.endsWith("\"")) {
+                    value = value.substring(1, value.length() - 1);
+                }
+                styleMap.put(entry.getKey(), value);
             }
-            styleMap.put(entry.getKey(), value);
         }
 
         if (!styleMap.isEmpty()) {
@@ -206,23 +232,7 @@ public class ComponentBuilder {
             String value;
 
             if (entry.getValue() instanceof Map<?, ?>) {
-                value = "(\n";
-                
-                List<String> valueContent = new ArrayList<>();
-                boolean isStyle = entry.getKey().equals("Style");
-                for (Map.Entry<?, ?> subEntry : ((Map<?, ?>) entry.getValue()).entrySet()) {
-                    String subValue;
-                    if (isStyle) {
-                        // Style properties should not have quotes
-                        subValue = formatStylePropertyValue(subEntry.getValue().toString());
-                    } else {
-                        // Other Map properties use normal formatting
-                        subValue = formatPropertyValue(subEntry.getValue().toString(), entry.getKey());
-                    }
-                    valueContent.add(indent(componentIndent + 2) + subEntry.getKey() + ": " + subValue);
-                }
-
-                value += String.join(",\n", valueContent) + "\n" + indent(componentIndent + 1) + ")";
+                value = formatNestedMap((Map<?, ?>) entry.getValue(), componentIndent + 1, entry.getKey().equals("Style"));
             } else {
                 value = formatPropertyValue(entry.getValue().toString(), entry.getKey());
             }
@@ -624,6 +634,31 @@ public class ComponentBuilder {
     }
 
     /**
+     * Get the current root directory path.
+     * @return The root directory path.
+     */
+    public static String getRootDir() {
+        return ROOT_DIR;
+    }
+
+    /**
+     * Set the root directory path for UI file imports.
+     * @param rootDir The root directory path (e.g., "../" or "../../").
+     */
+    public static void setRootDir(String rootDir) {
+        ROOT_DIR = rootDir;
+    }
+
+    /**
+     * Build a UI file import path using ROOT_DIR.
+     * @param fileName The UI file name (e.g., "Common.ui").
+     * @return The full import path (e.g., "../Common.ui").
+     */
+    public static String buildImportPath(String fileName) {
+        return ROOT_DIR + fileName;
+    }
+
+    /**
      * Add a comment to the component.
      * @param comment The comment to add.
      * @return The builder instance.
@@ -801,5 +836,44 @@ public class ComponentBuilder {
         }
 
         return hex;
+    }
+
+    /**
+     * Format a nested Map recursively.
+     * @param map The map to format.
+     * @param indentLevel The indentation level.
+     * @param isStyle Whether this is a Style property (affects formatting).
+     * @return The formatted map string.
+     */
+    private static String formatNestedMap(Map<?, ?> map, int indentLevel, boolean isStyle) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("(\n");
+        
+        List<String> valueContent = new ArrayList<>();
+        String indentStr = INDENT.repeat(indentLevel + 1);
+        
+        for (Map.Entry<?, ?> subEntry : map.entrySet()) {
+            String subValue;
+            Object subValueObj = subEntry.getValue();
+            
+            if (subValueObj instanceof Map<?, ?>) {
+                // Recursively format nested maps
+                subValue = formatNestedMap((Map<?, ?>) subValueObj, indentLevel + 1, false);
+            } else if (isStyle) {
+                // Style properties should not have quotes
+                subValue = formatStylePropertyValue(subValueObj.toString());
+            } else {
+                // Other Map properties use normal formatting
+                subValue = formatPropertyValue(subValueObj.toString(), "");
+            }
+            
+            valueContent.add(indentStr + subEntry.getKey() + ": " + subValue);
+        }
+
+        String indentStr2 = INDENT.repeat(indentLevel);
+        builder.append(String.join(",\n", valueContent));
+        builder.append("\n" + indentStr2 + ")");
+        
+        return builder.toString();
     }
 }

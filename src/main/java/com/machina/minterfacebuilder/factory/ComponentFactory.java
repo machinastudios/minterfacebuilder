@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
+import com.machina.minterfacebuilder.util.customui.registry.HComponentRegistry;
 
 /**
  * Factory for creating ComponentBuilder instances from HTML tags.
@@ -25,6 +26,20 @@ public class ComponentFactory {
     static {
         // Register QRCode component by default
         registerCustomTag("qrcode", com.machina.minterfacebuilder.util.customui.components.QRCodeComponent.class);
+        
+        // Register all H components automatically
+        registerAllHComponents();
+    }
+    
+    /**
+     * Register all H components from HComponentRegistry.
+     * This method automatically registers all 37 H components with ComponentFactory.
+     */
+    private static void registerAllHComponents() {
+        Map<String, Class<? extends ComponentBuilder>> hComponents = HComponentRegistry.getComponentMap();
+        for (Map.Entry<String, Class<? extends ComponentBuilder>> entry : hComponents.entrySet()) {
+            registerCustomTag(entry.getKey(), entry.getValue());
+        }
     }
 
     /**
