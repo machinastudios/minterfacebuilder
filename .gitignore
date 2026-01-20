@@ -48,3 +48,6 @@ replay_pid*
 # Application specific
 data/
 *.file.db
+
+# Marn
+.marn/
