@@ -13,6 +13,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HBackButton extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HBackButton";
 
+    public HBackButton() {
+        this(null);
+    }
+
     public HBackButton(Map<String, String> attributes) {
         super("Group");
         

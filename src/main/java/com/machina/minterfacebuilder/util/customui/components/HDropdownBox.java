@@ -15,6 +15,10 @@ import com.machina.minterfacebuilder.util.customui.helpers.SoundsHelper;
 public class HDropdownBox extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HDropdownBox";
 
+    public HDropdownBox() {
+        this(null);
+    }
+
     public HDropdownBox(Map<String, String> attributes) {
         super("DropdownBox");
         

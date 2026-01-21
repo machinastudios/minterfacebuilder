@@ -15,6 +15,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HPanelTitle extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HPanelTitle";
 
+    public HPanelTitle() {
+        this(null);
+    }
+
     public HPanelTitle(Map<String, String> attributes) {
         super("Group");
         

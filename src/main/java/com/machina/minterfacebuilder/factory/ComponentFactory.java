@@ -2,8 +2,8 @@ package com.machina.minterfacebuilder.factory;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
 import com.machina.minterfacebuilder.util.customui.registry.HComponentRegistry;
@@ -114,6 +114,56 @@ public class ComponentFactory {
         } catch (Exception e) {
             throw new RuntimeException("Failed to create component: " + componentClass.getName(), e);
         }
+    }
+
+    /**
+     * Create a ComponentBuilder from a tag name and attributes.
+     * @param tagName The tag name.
+     * @param attributes The attributes.
+     * @return The ComponentBuilder.
+     */
+    public static <T extends ComponentBuilder> T create(Class<T> componentClass, Map<String, Object> attributes) {
+        var component = create(componentClass);
+
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+            component.setProperty(entry.getKey(), entry.getValue());
+        }
+
+        return component;
+    }
+
+    /**
+     * Create a ComponentBuilder from a tag name and attributes.
+     * @param tagName The tag name.
+     * @param attributes The attributes.
+     * @return The ComponentBuilder.
+     */
+    public static <T extends ComponentBuilder> T create(Class<T> componentClass, ComponentBuilder... children) {
+        var component = create(componentClass);
+        component.appendChild(children);
+        return component;
+    }
+
+    /**
+     * Create a ComponentBuilder from a tag name and attributes.
+     * @param tagName The tag name.
+     * @param attributes The attributes.
+     * @return The ComponentBuilder.
+     */
+    public static <T extends ComponentBuilder> T create(Class<T> componentClass, Map<String, Object> attributes, ComponentBuilder... children) {
+        var component = create(componentClass, attributes);
+        component.appendChild(children);
+        return component;
+    }
+
+    /**
+     * Create a ComponentBuilder from a tag name and attributes.
+     * @param tagName The tag name.
+     * @param attributes The attributes.
+     * @return The ComponentBuilder.
+     */
+    public static ComponentBuilder create(String tagName, Map<String, String> attributes) {
+        return createFromTag(tagName, tagName, attributes, null, null);
     }
 
     /**

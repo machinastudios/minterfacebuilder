@@ -14,6 +14,10 @@ import com.machina.minterfacebuilder.util.customui.helpers.SoundsHelper;
 public class HContainer extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HContainer";
 
+    public HContainer() {
+        this(null);
+    }
+
     public HContainer(Map<String, String> attributes) {
         super("Group");
         

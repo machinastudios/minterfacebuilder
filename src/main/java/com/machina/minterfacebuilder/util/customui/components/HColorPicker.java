@@ -12,6 +12,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HColorPicker extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HColorPicker";
 
+    public HColorPicker() {
+        this(null);
+    }
+
     public HColorPicker(Map<String, String> attributes) {
         super("ColorPicker");
         

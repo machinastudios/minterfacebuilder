@@ -13,6 +13,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HPanelSeparatorFancy extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HPanelSeparatorFancy";
 
+    public HPanelSeparatorFancy() {
+        this(null);
+    }
+
     public HPanelSeparatorFancy(Map<String, String> attributes) {
         super("Group");
         

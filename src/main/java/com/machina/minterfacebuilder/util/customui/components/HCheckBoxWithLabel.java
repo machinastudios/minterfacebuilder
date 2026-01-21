@@ -14,6 +14,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HCheckBoxWithLabel extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HCheckBoxWithLabel";
 
+    public HCheckBoxWithLabel() {
+        this(null);
+    }
+
     public HCheckBoxWithLabel(Map<String, String> attributes) {
         super("Group");
         

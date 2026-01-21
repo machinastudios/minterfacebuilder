@@ -23,12 +23,18 @@ public class QRCodeComponent extends ComponentBuilder {
      * Create a QRCodeComponent from HTML attributes.
      * @param attributes The HTML attributes map.
      */
+    public QRCodeComponent() {
+        this(Map.of());
+    }
+
     public QRCodeComponent(Map<String, String> attributes) {
         super("Group");
 
-        String data = attributes.get("data");
+        Map<String, String> safeAttributes = attributes != null ? attributes : Map.of();
+
+        String data = safeAttributes.get("data");
         if (data == null || data.isEmpty()) {
-            data = attributes.get("value");
+            data = safeAttributes.get("value");
         }
         if (data == null || data.isEmpty()) {
             // No data provided, return empty group
@@ -37,9 +43,9 @@ public class QRCodeComponent extends ComponentBuilder {
 
         // Get block size from attributes
         int blockSize = DEFAULT_BLOCK_SIZE;
-        String blockSizeStr = attributes.get("blocksize");
+        String blockSizeStr = safeAttributes.get("blocksize");
         if (blockSizeStr == null || blockSizeStr.isEmpty()) {
-            blockSizeStr = attributes.get("block-size");
+            blockSizeStr = safeAttributes.get("block-size");
         }
         if (blockSizeStr != null && !blockSizeStr.isEmpty()) {
             try {
@@ -50,13 +56,13 @@ public class QRCodeComponent extends ComponentBuilder {
         }
 
         // Copy other properties
-        String id = attributes.get("id");
+        String id = safeAttributes.get("id");
         if (id != null && !id.isEmpty()) {
             this.setId(id);
         }
 
         // Generate QR code
-        this.generateQRCode(data, blockSize, attributes);
+        this.generateQRCode(data, blockSize, safeAttributes);
     }
 
     /**

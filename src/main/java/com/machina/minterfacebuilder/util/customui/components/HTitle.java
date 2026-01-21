@@ -5,14 +5,18 @@ import java.util.Map;
 
 import com.machina.minterfacebuilder.helpers.Alignment;
 import com.machina.minterfacebuilder.model.LiteralValue;
-import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
+import com.machina.minterfacebuilder.util.customui.components.base.TextableComponent;
 
 /**
  * H Title component with inline expanded styles.
  * Based on @Title from Common.ui (line 594-604).
  */
-public class HTitle extends HytaleCustomUIComponent {
+public class HTitle extends TextableComponent {
     public static final String TAG_NAME = "HTitle";
+
+    public HTitle() {
+        this(null);
+    }
 
     public HTitle(Map<String, String> attributes) {
         super("Label");

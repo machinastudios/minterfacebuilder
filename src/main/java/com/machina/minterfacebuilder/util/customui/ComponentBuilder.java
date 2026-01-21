@@ -147,11 +147,23 @@ public class ComponentBuilder {
         //#region Component header
         // Root component has no indent
         builder.append(indent(componentIndent));
-        builder.append(this.component);
 
-        // Add the id if it exists
-        if (this.id != null) {
-            builder.append(" #" + this.id);
+        // Get the id of the component
+        String propId = this.getPropertyIgnoreCase("Id");
+        String id = propId != null ? propId.toString() : this.id;
+
+        // If the component is blank and the id is not null
+        if (this.component.isBlank() && id != null) {
+            // Add the id
+            builder.append("#" + id);
+        } else {
+            // Add the component
+            builder.append(this.component);
+
+            // If the id is not null, add it
+            if (id != null) {
+                builder.append(" #" + id);
+            }
         }
 
         builder.append(" {\n");
@@ -159,6 +171,9 @@ public class ComponentBuilder {
 
         // Copy the properties
         Map<String, Object> propertiesCopy = new HashMap<>(this.properties);
+
+        // Remove the id from the properties
+        propertiesCopy.remove(getPropertyNameIgnoreCase("Id"));
 
         //#region Component styles
         Object styleMap = parseStyles();
@@ -283,6 +298,19 @@ public class ComponentBuilder {
     public ComponentBuilder appendChild(ComponentBuilder child) {
         this.children.add(child);
         child.setParent(this);
+
+        return this;
+    }
+
+    /**
+     * Append children to the component.
+     * @param children The children to append.
+     * @return The builder instance.
+     */
+    public ComponentBuilder appendChild(ComponentBuilder... children) {
+        for (ComponentBuilder child : children) {
+            this.appendChild(child);
+        }
 
         return this;
     }
@@ -576,12 +604,42 @@ public class ComponentBuilder {
     }
 
     /**
+     * Get a property for the component.
+     * @param property The property to get.
+     * @return The value of the property.
+     */
+    public <T> T getPropertyIgnoreCase(String property) {
+        return (T) this.properties.get(getPropertyNameIgnoreCase(property));
+    }
+
+    /**
+     * Get the name of a property for the component.
+     * @param property The property to get.
+     * @return The name of the property.
+     */
+    public String getPropertyNameIgnoreCase(String property) {
+        for (Map.Entry<String, Object> entry : this.properties.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(property)) {
+                return entry.getKey();
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Set a property for the component.
      * @param property The property to set.
      * @param value The value to set the property to.
      * @return The builder instance.
      */
     public ComponentBuilder setProperty(String property, Object value) {
+        // If the property is "id", set the id of the component
+        if (property.toLowerCase() == "id") {
+            this.setId(value.toString());
+            return this;
+        }
+
         this.properties.put(property, value);
         return this;
     }
@@ -593,7 +651,10 @@ public class ComponentBuilder {
      * @return The builder instance.
      */
     public ComponentBuilder setProperties(Map<String, Object> properties) {
-        this.properties.putAll(properties);
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            this.setProperty(entry.getKey(), entry.getValue());
+        }
+
         return this;
     }
 

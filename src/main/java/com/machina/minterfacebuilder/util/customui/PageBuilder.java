@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -21,13 +17,13 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
+import com.hypixel.hytale.protocol.packets.interface_.Page;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.machina.minterfacebuilder.model.HTMLCustomUITemplate;
 import com.machina.minterfacebuilder.model.HTMLCustomUITemplate.DynamicEventData;
@@ -234,6 +230,14 @@ public class PageBuilder extends ComponentBuilder {
     }
 
     /**
+     * Close the page.
+     */
+    public void close() {
+        var playerComponent = store.getComponent(playerRef, Player.getComponentType());
+        playerComponent.getPageManager().setPage(playerRef, store, Page.None);
+    }
+
+    /**
      * Construct the page.
      */
     protected void construct() {
@@ -336,19 +340,22 @@ public class PageBuilder extends ComponentBuilder {
         /**
          * The selector of the element.
          */
+        @Nonnull
         public final String selector;
 
         /**
          * The type of event.
          */
+        @Nonnull
         public final EventType eventType;
 
         /**
          * The action to perform when the event is fired.
          */
+        @Nonnull
         public final Consumer<PageEvent<?>> action;
 
-        public EventListener(String selector, EventType eventType, Consumer<PageEvent<?>> action) {
+        public EventListener(@Nonnull String selector, @Nonnull EventType eventType, @Nonnull Consumer<PageEvent<?>> action) {
             this.selector = selector;
             this.eventType = eventType;
             this.action = action;

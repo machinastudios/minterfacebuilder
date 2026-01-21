@@ -13,6 +13,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HScrollbar extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HScrollbar";
 
+    public HScrollbar() {
+        this(null);
+    }
+
     public HScrollbar(Map<String, String> attributes) {
         super("Scrollbar");
         

@@ -13,7 +13,7 @@ public class HActionButtonContainer extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HActionButtonContainer";
 
     public HActionButtonContainer() {
-        super("Group");
+        this(null);
     }
 
     public HActionButtonContainer(Map<String, String> attributes) {

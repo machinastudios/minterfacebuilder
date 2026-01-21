@@ -12,6 +12,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HCloseButton extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HCloseButton";
 
+    public HCloseButton() {
+        this(null);
+    }
+
     public HCloseButton(Map<String, String> attributes) {
         super("Button");
         

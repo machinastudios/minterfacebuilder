@@ -13,6 +13,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HHeaderSearch extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HHeaderSearch";
 
+    public HHeaderSearch() {
+        this(null);
+    }
+
     public HHeaderSearch(Map<String, String> attributes) {
         super("Group");
         

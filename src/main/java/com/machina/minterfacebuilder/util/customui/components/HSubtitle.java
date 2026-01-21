@@ -12,6 +12,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HSubtitle extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HSubtitle";
 
+    public HSubtitle() {
+        this(null);
+    }
+
     public HSubtitle(Map<String, String> attributes) {
         super("Label");
         

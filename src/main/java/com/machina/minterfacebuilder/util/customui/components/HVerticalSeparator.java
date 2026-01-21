@@ -12,6 +12,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HVerticalSeparator extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HVerticalSeparator";
 
+    public HVerticalSeparator() {
+        this(null);
+    }
+
     public HVerticalSeparator(Map<String, String> attributes) {
         super("Group");
         

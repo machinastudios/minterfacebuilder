@@ -13,6 +13,10 @@ import com.machina.minterfacebuilder.util.customui.helpers.SoundsHelper;
 public class HCheckBox extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HCheckBox";
 
+    public HCheckBox() {
+        this(null);
+    }
+
     public HCheckBox(Map<String, String> attributes) {
         super("CheckBox");
         

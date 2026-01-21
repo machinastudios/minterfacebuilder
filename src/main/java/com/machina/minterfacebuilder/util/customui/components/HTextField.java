@@ -12,6 +12,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HTextField extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HTextField";
 
+    public HTextField() {
+        this(null);
+    }
+
     public HTextField(Map<String, String> attributes) {
         super("TextField");
         

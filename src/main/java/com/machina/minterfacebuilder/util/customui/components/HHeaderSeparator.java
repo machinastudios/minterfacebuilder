@@ -12,6 +12,10 @@ import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 public class HHeaderSeparator extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HHeaderSeparator";
 
+    public HHeaderSeparator() {
+        this(null);
+    }
+
     public HHeaderSeparator(Map<String, String> attributes) {
         super("Group");
         

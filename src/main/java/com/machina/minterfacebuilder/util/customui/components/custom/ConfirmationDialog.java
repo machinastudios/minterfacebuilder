@@ -1,5 +1,6 @@
 package com.machina.minterfacebuilder.util.customui.components.custom;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -7,10 +8,15 @@ import javax.annotation.Nullable;
 
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.machina.minterfacebuilder.factory.ComponentFactory;
+import com.machina.minterfacebuilder.helpers.LayoutMode;
 import com.machina.minterfacebuilder.helpers.TranslationKey;
 import com.machina.minterfacebuilder.util.customui.PageBuilder;
+import com.machina.minterfacebuilder.util.customui.components.HDecoratedContainer;
+import com.machina.minterfacebuilder.util.customui.components.HPageOverlay;
+import com.machina.minterfacebuilder.util.customui.components.HSecondaryTextButton;
 import com.machina.minterfacebuilder.util.customui.components.HTextButton;
-import com.machina.minterfacebuilder.util.customui.components.HTitleLabel;
+import com.machina.minterfacebuilder.util.customui.components.HTitle;
+import com.machina.minterfacebuilder.util.customui.components.base.Group;
 import com.machina.minterfacebuilder.util.customui.components.base.Label;
 
 public class ConfirmationDialog extends PageBuilder {
@@ -53,6 +59,11 @@ public class ConfirmationDialog extends PageBuilder {
      */
     private final Consumer<PageEvent<String>> onCancel;
 
+    /**
+     * Whether to close the dialog when the cancel button is pressed.
+     */
+    private boolean closeOnCancel = true;
+
     public ConfirmationDialog(Options options) {
         super("Group", null, CustomPageLifetime.CanDismiss);
 
@@ -60,6 +71,7 @@ public class ConfirmationDialog extends PageBuilder {
         this.description = options.description;
         this.confirmText = options.confirmText;
         this.cancelText = options.cancelText;
+        this.closeOnCancel = options.closeOnCancel;
 
         // If there's a onConfirmOrCancel action, add it to the options
         if (options.onConfirmOrCancel != null) {
@@ -93,10 +105,58 @@ public class ConfirmationDialog extends PageBuilder {
 
     @Override
     protected void construct() {
-        appendChild(ComponentFactory.create(HTitleLabel.class).setText(this.getTitle()));
-        appendChild(ComponentFactory.create(Label.class).setText(this.description));
-        appendChild(ComponentFactory.create(HTextButton.class).setText(this.getConfirmText()).setId("ConfirmButton"));
-        appendChild(ComponentFactory.create(HTextButton.class).setText(this.getCancelText()).setId("CancelButton"));
+        appendChild(
+            ComponentFactory.create(
+                HPageOverlay.class,
+                Map.of(
+                    "LayoutMode", LayoutMode.MIDDLE
+                ),
+                ComponentFactory.create(
+                    HDecoratedContainer.class,
+                    Map.of(
+                        "Anchor", Map.of("Width", 500)
+                    )
+                )
+                    .appendChild(
+                        ComponentFactory.create(
+                            Group.class,
+                            Map.of(
+                                "Padding",
+                                Map.of(
+                                    "Vertical", 32,
+                                    "Horizontal", 45
+                                ),
+                                "LayoutMode", LayoutMode.TOP
+                            ),
+                            ComponentFactory.create(HTitle.class).setText(this.getTitle()),
+                            ComponentFactory.create(Label.class).setText(this.description),
+                            ComponentFactory.create(
+                                Group.class,
+                                Map.of(
+                                    "LayoutMode", LayoutMode.CENTER,
+                                    "Anchor", Map.of("Top", 16)
+                                ),
+                                ComponentFactory.create(
+                                    HTextButton.class,
+                                    Map.of(
+                                        "Anchor", Map.of("Right", 4)
+                                    )
+                                )
+                                    .setText(this.getConfirmText())
+                                    .setId("ConfirmButton"),
+                                ComponentFactory.create(
+                                    HSecondaryTextButton.class,
+                                    Map.of(
+                                        "Anchor", Map.of("Left", 4)
+                                    )
+                                )
+                                    .setText(this.getCancelText())
+                                    .setId("CancelButton")
+                            )
+                        )
+                    )
+            )
+        );
 
         // When clicking the confirm button, call the onConfirm action
         addEventListener("#ConfirmButton", EventType.CLICK, (e) -> {
@@ -106,6 +166,11 @@ public class ConfirmationDialog extends PageBuilder {
         // When clicking the cancel button, call the onCancel action
         addEventListener("#CancelButton", EventType.CLICK, (e) -> {
             this.onCancel.accept((PageEvent<String>) e);
+
+            // If closeOnCancel is true, close the dialog
+            if (this.closeOnCancel) {
+                this.close();
+            }
         });
     }
 
@@ -150,6 +215,7 @@ public class ConfirmationDialog extends PageBuilder {
         public Object description;
         public Object confirmText;
         public Object cancelText;
+        public boolean closeOnCancel = true;
         public Consumer<PageEvent<String>> onConfirm;
         public Consumer<PageEvent<String>> onCancel;
         public Consumer<Boolean> onConfirmOrCancel;
@@ -187,6 +253,16 @@ public class ConfirmationDialog extends PageBuilder {
             this.cancelText = cancelText;
             this.onConfirm = onConfirm;
             this.onCancel = onCancel;
+        }
+        
+        /**
+         * Set whether to close the dialog when the cancel button is pressed.
+         * @param closeOnCancel
+         * @return The options.
+         */
+        public Options setCloseOnCancel(boolean closeOnCancel) {
+            this.closeOnCancel = closeOnCancel;
+            return this;
         }
     }
 }
