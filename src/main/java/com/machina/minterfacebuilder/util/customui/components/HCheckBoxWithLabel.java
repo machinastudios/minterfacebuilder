@@ -3,6 +3,7 @@ package com.machina.minterfacebuilder.util.customui.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.machina.minterfacebuilder.helpers.Alignment;
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
 import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 
@@ -45,7 +46,7 @@ public class HCheckBoxWithLabel extends HytaleCustomUIComponent {
         Map<String, Object> labelStyle = new HashMap<>();
         labelStyle.put("FontSize", 16);
         labelStyle.put("TextColor", "#96a9be");
-        labelStyle.put("VerticalAlignment", "Center");
+        labelStyle.put("VerticalAlignment", Alignment.CENTER);
         label.setProperty("Style", labelStyle);
         
         this.appendChild(label);

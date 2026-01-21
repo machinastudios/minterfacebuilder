@@ -3,18 +3,24 @@ package com.machina.minterfacebuilder.util.customui.components;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
+import com.machina.minterfacebuilder.helpers.FnCall;
+import com.machina.minterfacebuilder.model.LiteralValue;
+import com.machina.minterfacebuilder.util.customui.components.base.Button;
 import com.machina.minterfacebuilder.util.customui.helpers.SoundsHelper;
 
 /**
  * H Button component with inline expanded styles.
  * Based on @Button from Common.ui (line 182-194).
  */
-public class HButton extends HytaleCustomUIComponent {
+public class HButton extends Button {
     public static final String TAG_NAME = "HButton";
 
+    public HButton() {
+        this(null);
+    }
+
     public HButton(Map<String, String> attributes) {
-        super("Button");
+        super();
         
         // Configure Anchor (square button)
         Map<String, Object> anchor = new HashMap<>();
@@ -28,36 +34,19 @@ public class HButton extends HytaleCustomUIComponent {
         }
         anchor.put("Height", height);
         anchor.put("Width", height);
+
         this.setProperty("Anchor", anchor);
-        
-        // Configure Style with ALL values inline (no aliases)
-        Map<String, Object> style = new HashMap<>();
-        
-        // Default state - all expanded inline
-        Map<String, Object> defaultState = new HashMap<>();
-        defaultState.put("Background", "PatchStyle(TexturePath: \"Common/Buttons/Primary_Square.png\", Border: 12)");
-        style.put("Default", defaultState);
-        
-        // Hovered state - all expanded inline
-        Map<String, Object> hoveredState = new HashMap<>();
-        hoveredState.put("Background", "PatchStyle(TexturePath: \"Common/Buttons/Primary_Square_Hovered.png\", Border: 12)");
-        style.put("Hovered", hoveredState);
-        
-        // Pressed state - all expanded inline
-        Map<String, Object> pressedState = new HashMap<>();
-        pressedState.put("Background", "PatchStyle(TexturePath: \"Common/Buttons/Primary_Square_Pressed.png\", Border: 12)");
-        style.put("Pressed", pressedState);
-        
-        // Disabled state - all expanded inline
-        Map<String, Object> disabledState = new HashMap<>();
-        disabledState.put("Background", "PatchStyle(TexturePath: \"Common/Buttons/Disabled.png\", Border: 12)");
-        style.put("Disabled", disabledState);
-        
-        // Sounds using SoundsHelper (no $Sounds)
-        style.put("Sounds", SoundsHelper.getButtonsLight());
-        
-        this.setProperty("Style", style);
-        
+
+        this.setProperty("Style", FnCall.of(
+            "ButtonStyle", Map.of(
+                "Background", LiteralValue.of("PatchStyle(TexturePath: \"Common/Buttons/Primary_Square.png\", Border: 12)"),
+                "Hovered", LiteralValue.of("PatchStyle(TexturePath: \"Common/Buttons/Primary_Square_Hovered.png\", Border: 12)"),
+                "Pressed", LiteralValue.of("PatchStyle(TexturePath: \"Common/Buttons/Primary_Square_Pressed.png\", Border: 12)"),
+                "Disabled", LiteralValue.of("PatchStyle(TexturePath: \"Common/Buttons/Disabled.png\", Border: 12)"),
+                "Sounds", SoundsHelper.getButtonsLight()
+            )
+        ));
+
         // Padding
         Map<String, Object> padding = new HashMap<>();
         padding.put("Horizontal", 24); // @ButtonPadding expanded

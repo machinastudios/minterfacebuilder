@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import com.machina.minterfacebuilder.helpers.Alignment;
+import com.machina.minterfacebuilder.model.LiteralValue;
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
 
 /**
@@ -353,29 +355,29 @@ public class CSSStyleParser {
                 // Horizontal alignment: left/start -> Start, center -> Center, right/end -> End
                 String normalizedAlign = value.toLowerCase().trim();
                 if (normalizedAlign.equals("center")) {
-                    component.setStyle("HorizontalAlignment", "Center");
+                    component.setStyle("HorizontalAlignment", Alignment.CENTER);
                 } else if (normalizedAlign.equals("right") || normalizedAlign.equals("end")) {
-                    component.setStyle("HorizontalAlignment", "End");
+                    component.setStyle("HorizontalAlignment", Alignment.END);
                 } else if (normalizedAlign.equals("left") || normalizedAlign.equals("start")) {
-                    component.setStyle("HorizontalAlignment", "Start");
+                    component.setStyle("HorizontalAlignment", Alignment.START);
                 }
                 break;
 
             case "text-transform":
                 // Text transformation: uppercase -> RenderUppercase
                 if (value.equals("uppercase")) {
-                    component.setStyle("RenderUppercase", "true");
+                    component.setStyle("RenderUppercase", true);
                 } else if (value.equals("none") || value.equals("normal")) {
-                    component.setStyle("RenderUppercase", "false");
+                    component.setStyle("RenderUppercase", false);
                 }
                 break;
 
             case "text-decoration":
                 // Text decoration: underline -> RenderUnderlined
                 if (value.contains("underline")) {
-                    component.setStyle("RenderUnderlined", "true");
+                    component.setStyle("RenderUnderlined", true);
                 } else if (value.equals("none") || value.equals("normal")) {
-                    component.setStyle("RenderUnderlined", "false");
+                    component.setStyle("RenderUnderlined", false);
                 }
                 break;
 
@@ -383,11 +385,11 @@ public class CSSStyleParser {
                 // Vertical alignment: top/start -> Start, middle/center -> Center, bottom/end -> End
                 String normalizedVerticalAlign = value.toLowerCase().trim();
                 if (normalizedVerticalAlign.equals("center") || normalizedVerticalAlign.equals("middle")) {
-                    component.setStyle("VerticalAlignment", "Center");
+                    component.setStyle("VerticalAlignment", Alignment.CENTER);
                 } else if (normalizedVerticalAlign.equals("bottom") || normalizedVerticalAlign.equals("end")) {
-                    component.setStyle("VerticalAlignment", "End");
+                    component.setStyle("VerticalAlignment", Alignment.END);
                 } else if (normalizedVerticalAlign.equals("top") || normalizedVerticalAlign.equals("start")) {
-                    component.setStyle("VerticalAlignment", "Start");
+                    component.setStyle("VerticalAlignment", Alignment.START);
                 }
                 break;
 
@@ -395,9 +397,9 @@ public class CSSStyleParser {
             case "overflow-wrap":
                 // Word wrapping
                 if (value.equals("break-word") || value.equals("break") || value.equals("wrap")) {
-                    component.setStyle("Wrap", "true");
+                    component.setStyle("Wrap", true);
                 } else if (value.equals("normal") || value.equals("nowrap")) {
-                    component.setStyle("Wrap", "false");
+                    component.setStyle("Wrap", false);
                 }
                 break;
 
@@ -405,7 +407,7 @@ public class CSSStyleParser {
                 // Letter spacing (e.g., "2px", "0.5em", "2")
                 try {
                     int letterSpacingValue = parseSize(value);
-                    component.setStyle("LetterSpacing", String.valueOf(letterSpacingValue));
+                    component.setStyle("LetterSpacing", LiteralValue.of(letterSpacingValue));
                 } catch (NumberFormatException e) {
                     // Ignore invalid letter-spacing
                 }

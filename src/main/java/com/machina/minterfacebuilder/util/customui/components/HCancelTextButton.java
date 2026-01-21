@@ -3,6 +3,8 @@ package com.machina.minterfacebuilder.util.customui.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.machina.minterfacebuilder.helpers.Alignment;
+import com.machina.minterfacebuilder.model.LiteralValue;
 import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 import com.machina.minterfacebuilder.util.customui.helpers.SoundsHelper;
 
@@ -34,39 +36,39 @@ public class HCancelTextButton extends HytaleCustomUIComponent {
         
         // Default state - all expanded inline
         Map<String, Object> defaultState = new HashMap<>();
-        defaultState.put("Background", "PatchStyle(TexturePath: \"Common/Buttons/Destructive.png\", Border: 12)");
+        defaultState.put("Background", LiteralValue.of("PatchStyle(TexturePath: \"Common/Buttons/Destructive.png\", Border: 12)"));
         Map<String, Object> defaultLabelStyle = new HashMap<>();
         defaultLabelStyle.put("FontSize", 17);
         defaultLabelStyle.put("TextColor", "#bfcdd5");
         defaultLabelStyle.put("RenderBold", true);
         defaultLabelStyle.put("RenderUppercase", true);
-        defaultLabelStyle.put("HorizontalAlignment", "Center");
-        defaultLabelStyle.put("VerticalAlignment", "Center");
+        defaultLabelStyle.put("HorizontalAlignment", Alignment.CENTER);
+        defaultLabelStyle.put("VerticalAlignment", Alignment.CENTER);
         defaultState.put("LabelStyle", defaultLabelStyle);
         style.put("Default", defaultState);
         
         // Hovered state - all expanded inline
         Map<String, Object> hoveredState = new HashMap<>();
-        hoveredState.put("Background", "PatchStyle(TexturePath: \"Common/Buttons/Destructive_Hovered.png\", Border: 12)");
+        hoveredState.put("Background", LiteralValue.of("PatchStyle(TexturePath: \"Common/Buttons/Destructive_Hovered.png\", Border: 12)"));
         hoveredState.put("LabelStyle", defaultLabelStyle);
         style.put("Hovered", hoveredState);
         
         // Pressed state - all expanded inline
         Map<String, Object> pressedState = new HashMap<>();
-        pressedState.put("Background", "PatchStyle(TexturePath: \"Common/Buttons/Destructive_Pressed.png\", Border: 12)");
+        pressedState.put("Background", LiteralValue.of("PatchStyle(TexturePath: \"Common/Buttons/Destructive_Pressed.png\", Border: 12)"));
         pressedState.put("LabelStyle", defaultLabelStyle);
         style.put("Pressed", pressedState);
         
         // Disabled state - all expanded inline
         Map<String, Object> disabledState = new HashMap<>();
-        disabledState.put("Background", "PatchStyle(TexturePath: \"Common/Buttons/Disabled.png\", Border: 12)");
+        disabledState.put("Background", LiteralValue.of("PatchStyle(TexturePath: \"Common/Buttons/Disabled.png\", Border: 12)"));
         Map<String, Object> disabledLabelStyle = new HashMap<>();
         disabledLabelStyle.put("FontSize", 17);
         disabledLabelStyle.put("TextColor", "#797b7c"); // @DisabledColor expanded
         disabledLabelStyle.put("RenderBold", true);
         disabledLabelStyle.put("RenderUppercase", true);
-        disabledLabelStyle.put("HorizontalAlignment", "Center");
-        disabledLabelStyle.put("VerticalAlignment", "Center");
+        disabledLabelStyle.put("HorizontalAlignment", Alignment.CENTER);
+        disabledLabelStyle.put("VerticalAlignment", Alignment.CENTER);
         disabledState.put("LabelStyle", disabledLabelStyle);
         style.put("Disabled", disabledState);
         

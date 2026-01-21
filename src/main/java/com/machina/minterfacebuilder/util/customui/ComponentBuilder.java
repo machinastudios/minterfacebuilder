@@ -5,6 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.machina.minterfacebuilder.helpers.FnCall;
+import com.machina.minterfacebuilder.model.LiteralValue;
+import com.machina.minterfacebuilder.util.SerializationUtil;
+import com.machina.minterfacebuilder.util.StyleStringParser;
+import com.machina.shared.util.ObjectUtil;
+
 public class ComponentBuilder {
     /**
      * Root directory path used for UI file imports.
@@ -16,12 +22,7 @@ public class ComponentBuilder {
     /**
      * The indent character.
      */
-    private static final String INDENT = "  ";
-
-    /**
-     * All properties that should be parsed and treated as a map.
-     */
-    private static final List<String> MAP_PROPERTIES = List.of("anchor", "style");
+    public static final String INDENT = "  ";
 
     /**
      * The component type.
@@ -41,7 +42,7 @@ public class ComponentBuilder {
     /**
      * The styles of the component.
      */
-    private Map<String, String> styles = new HashMap<>();
+    private Map<String, Object> styles = new HashMap<>();
 
     /**
      * The children of the component.
@@ -157,84 +158,60 @@ public class ComponentBuilder {
         //#endregion
 
         // Copy the properties
-        Map<String, Object> properties = new HashMap<>(this.properties);
+        Map<String, Object> propertiesCopy = new HashMap<>(this.properties);
 
         //#region Component styles
-        // Get existing Style Map from properties (if any) - this may contain nested Maps
-        Map<String, Object> styleMap = null;
-        Object existingStyle = this.properties.get("Style");
-        if (existingStyle instanceof Map<?, ?>) {
-            // Preserve existing Style Map which may contain nested Maps (like Sounds, EntrySounds)
-            // Deep copy to preserve Maps as Maps (not as references that might get converted)
-            styleMap = new HashMap<>();
-            for (Map.Entry<?, ?> entry : ((Map<?, ?>) existingStyle).entrySet()) {
-                // Preserve Maps as-is (don't convert to String)
-                // HashMap constructor already preserves Map references, so just copy directly
-                styleMap.put(entry.getKey().toString(), entry.getValue());
-            }
-        } else {
-            // Build new Style Map from scratch
-            styleMap = new HashMap<>();
-        }
+        Object styleMap = parseStyles();
 
-        // Get the "Styles" property
-        String stylesFromProperties = (String) this.properties.get("Styles");
-
-        // Add the styles from the properties to the map (only if not already present and not a Map)
-        if (stylesFromProperties != null) {
-            String[] stylesFromPropertiesArray = stylesFromProperties.split(",");
-            for (String style : stylesFromPropertiesArray) {
-                style = style.trim();
-                if (style.isEmpty()) continue;
-                int colonIndex = style.indexOf(':');
-                if (colonIndex != -1) {
-                    String key = style.substring(0, colonIndex).trim();
-                    // Don't overwrite Maps with Strings
-                    if (!styleMap.containsKey(key) || !(styleMap.get(key) instanceof Map<?, ?>)) {
-                        String value = style.substring(colonIndex + 1).trim();
-                        // Remove quotes if present
-                        if (value.startsWith("\"") && value.endsWith("\"")) {
-                            value = value.substring(1, value.length() - 1);
-                        }
-                        styleMap.put(key, value);
-                    }
+        // If the style map is not empty, add it to the properties
+        if (styleMap != null) {
+            // If the style map is a map, format it
+            if (styleMap instanceof Map<?, ?>) {
+                styleMap = formatNestedMap((Map<?, ?>) styleMap, componentIndent + 1, NestingStyle.PARENTHESIS);
+            } else
+            // If it's a string
+            if (styleMap instanceof String) {
+                // If it's empty, ignore it
+                if (((String) styleMap).isBlank()) {
+                    styleMap = null;
                 }
             }
-        }
 
-        // Add the styles to the map (only if not already present from Style property and not a Map)
-        for (Map.Entry<String, String> entry : this.styles.entrySet()) {
-            if (!styleMap.containsKey(entry.getKey()) || !(styleMap.get(entry.getKey()) instanceof Map<?, ?>)) {
-                String value = entry.getValue();
-                // Remove quotes if present
-                if (value.startsWith("\"") && value.endsWith("\"")) {
-                    value = value.substring(1, value.length() - 1);
-                }
-                styleMap.put(entry.getKey(), value);
+            // If the style map is not null, add it to the properties
+            if (styleMap != null) {
+                propertiesCopy.put("Style", LiteralValue.of(styleMap));
             }
         }
 
-        if (!styleMap.isEmpty()) {
-            // Add the styles to the component as a Map so it's formatted correctly without quotes
-            properties.put("Style", styleMap);
-        }
         //#endregion
 
         //#region Component properties
         List<String> propertiesOutput = new ArrayList<>();
 
         // Add the properties to the list
-        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+        for (Map.Entry<String, Object> entry : propertiesCopy.entrySet()) {
+            Object valueObj = entry.getValue();
+
             // Group does not support Text property - skip it (it should be converted to Label child)
             if (entry.getKey().equals("Text") && this.component.equalsIgnoreCase("Group")) {
                 continue;
             }
+
             String value;
 
-            if (entry.getValue() instanceof Map<?, ?>) {
-                value = formatNestedMap((Map<?, ?>) entry.getValue(), componentIndent + 1, entry.getKey().equals("Style"));
+            // If the value is a map, format it
+            if (valueObj instanceof Map<?, ?>) {
+                // Format the nested map
+                value = formatNestedMap(
+                    (Map<?, ?>) valueObj, componentIndent + 1, NestingStyle.PARENTHESIS
+                );
             } else {
-                value = formatPropertyValue(entry.getValue().toString(), entry.getKey());
+                value = formatPropertyValue(valueObj);
+            }
+
+            // If the value is blank, skip it
+            if (ObjectUtil.isBlank(value)) {
+                continue;
             }
 
             propertiesOutput.add(
@@ -385,18 +362,17 @@ public class ComponentBuilder {
      * @param value The value to set the style to.
      * @return The builder instance.
      */
-    public ComponentBuilder setStyle(String style, String value) {
+    public ComponentBuilder setStyle(String style, Object value) {
         this.styles.put(style, value);
         return this;
     }
 
     /**
      * Set a style for the component.
-     * @param style The style to set.
-     * @param value The value to set the style to.
+     * @param styles The styles to set.
      * @return The builder instance.
      */
-    public ComponentBuilder setStyle(Map<String, String> styles) {
+    public ComponentBuilder setStyle(Map<String, Object> styles) {
         this.styles.putAll(styles);
         return this;
     }
@@ -421,6 +397,144 @@ public class ComponentBuilder {
 
         this.id = pascalId;
         return this;
+    }
+
+    /**
+     * Parse the styles of the component.
+     * @return The style map.
+     */
+    private Object parseStyles() {
+        // Get existing Style Map from properties (if any) - this may contain nested Maps
+        Map<String, Object> styleMap = new HashMap<>();
+        Object existingStyle = this.properties.get("Style");
+
+        // If an style property exists
+        if (existingStyle != null) {
+            // If the existing style is a map, add it to the style map
+            if (existingStyle instanceof Map<?, ?>) {
+                styleMap.putAll((Map<? extends String, ? extends Object>) existingStyle);
+            } else {
+                // If the existing style is a string, parse it
+                if (existingStyle instanceof String) {
+                    styleMap.putAll(StyleStringParser.parseKeyValuePairs((String) existingStyle));
+                }
+                // If it's a LiteralValue
+                if (existingStyle instanceof LiteralValue) {
+                    // If the literal value is a FnCall, return the value of the FnCall
+                    if (existingStyle instanceof FnCall) {
+                        return ((FnCall) existingStyle).getValue(this.getComponentBlockIndentLevel() + 1);
+                    }
+
+                    return ((LiteralValue) existingStyle).getValue();
+                } else {
+                    throw new IllegalArgumentException(
+                        "The existing style is not a map or a string: " + existingStyle.getClass().getName()
+                    );
+                }
+            }
+        }
+
+        // If there are styles to add
+        if (!this.styles.isEmpty()) {
+            // Add the styles to the map (only if not already present from Style property and not a Map)
+            for (Map.Entry<String, Object> entry : this.styles.entrySet()) {
+                var value = entry.getValue();
+
+                // If the value is a map
+                if (value instanceof Map<?, ?>) {
+                    // If the style map does not contain the key, add it
+                    if (!styleMap.containsKey(entry.getKey())) {
+                        styleMap.put(entry.getKey(), value);
+                        continue;
+                    }
+
+                    // Get the existing map
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> existing = (Map<String, Object>) styleMap.get(entry.getKey());
+
+                    // If the existing map is not null and is a map
+                    if (existing != null && existing instanceof Map<?, ?>) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> valueMap = (Map<String, Object>) value;
+                        existing.putAll(valueMap);
+                    } else {
+                        // What do we do?
+                        throw new IllegalArgumentException(
+                            "A style map already exists for "
+                            + entry.getKey()
+                            + " but the value is not a map: "
+                            + value.getClass().getName()
+                        );
+                    }
+
+                    continue;
+                }
+
+                // If the key already exists
+                if (styleMap.containsKey(entry.getKey())) {
+                    // Skip it
+                    continue;
+                }
+
+                // Put the value into the map
+                styleMap.put(entry.getKey(), value);
+            }
+        }
+
+        return styleMap;
+    }
+
+    /**
+     * Convert a value to a string.
+     * @param value The value to convert.
+     * @return The string representation of the value.
+     */
+    public static String stringifyValue(Object value) {
+        // If it's an InterfaceLiteral, convert it to a string
+        if (value instanceof LiteralValue) {
+            return ((LiteralValue) value).getValue();
+        }
+
+        // If it's a primitive serializable type, convert it to a string
+        if (SerializationUtil.isSerializable(value)) {
+            // If is a string
+            if (value instanceof String) {
+                String trimmed = ((String) value).trim();
+
+                // i18n paths (start with %) - no quotes
+                if (trimmed.startsWith("%")) {
+                    // Convert i18n paths to camelCase if they contain underscores or hyphens
+                    return toCamelCaseI18nPath(trimmed);
+                }
+
+                // Variables (start with @) - no quotes
+                if (trimmed.startsWith("@")) {
+                    return trimmed;
+                }
+
+                // Numbers (integer or decimal) - no quotes
+                if (trimmed.matches("-?\\d+(\\.\\d+)?")) {
+                    return trimmed;
+                }
+
+                // Booleans - no quotes
+                if (trimmed.equals("true") || trimmed.equals("false")) {
+                    return trimmed;
+                }
+
+                // Hex colors (start with #) - no quotes, but expand 3-digit to 6-digit
+                if (trimmed.startsWith("#")) {
+                    return expandHexColor(trimmed);
+                }
+
+                return '"' + trimmed + '"';
+            }
+
+            // It is already directly serializable, so return it as a string
+            return value.toString();
+        }
+
+        throw new IllegalArgumentException("Value is not a serializable type: " + value.getClass().getName());
     }
 
     /**
@@ -468,26 +582,6 @@ public class ComponentBuilder {
      * @return The builder instance.
      */
     public ComponentBuilder setProperty(String property, Object value) {
-        if (MAP_PROPERTIES.contains(property)) {
-            // If it's already a map
-            if (value instanceof Map<?, ?>) {
-                this.properties.put(property, (Map<?, ?>) value);
-            } else
-            // If it's a string
-            if (value instanceof String) {
-                // Parse the string as a map
-                Map<String, Object> map = new HashMap<>();
-                String[] keyValuePairs = ((String) value).split(",");
-
-                for (String keyValuePair : keyValuePairs) {
-                    String[] keyValue = keyValuePair.split(":");
-                    map.put(keyValue[0].trim(), keyValue[1].trim());
-                }
-
-                this.properties.put(property, map);
-            }
-        }
-
         this.properties.put(property, value);
         return this;
     }
@@ -709,30 +803,6 @@ public class ComponentBuilder {
     }
 
     /**
-     * Format a Style property value (no quotes inside Style objects).
-     * Style properties should never have quotes - values like "Center" should be Center.
-     * @param value The style property value string.
-     * @return The formatted value without quotes.
-     */
-    private static String formatStylePropertyValue(String value) {
-        if (value == null || value.isEmpty()) {
-            return value;
-        }
-
-        String trimmed = value.trim();
-
-        // Remove quotes if present (they shouldn't be there in Style)
-        if ((trimmed.startsWith("\"") && trimmed.endsWith("\"")) || 
-            (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
-            trimmed = trimmed.substring(1, trimmed.length() - 1);
-        }
-
-        // Numbers, booleans, colors, etc. - return as-is
-        // Everything else - return as-is without quotes (Style values don't use quotes)
-        return trimmed;
-    }
-
-    /**
      * Format a property value, adding quotes if needed.
      * Strings that are not i18n paths (starting with %), variables (starting with @),
      * numbers, booleans, or hex colors need quotes.
@@ -740,41 +810,64 @@ public class ComponentBuilder {
      * @param propertyName The property name (to determine if it needs special handling).
      * @return The formatted value with quotes if needed.
      */
-    private static String formatPropertyValue(String value, String propertyName) {
-        if (value == null || value.isEmpty()) {
-            return value;
+    private static String formatPropertyValue(Object value) {
+        // If null or empty
+        if (value == null) {
+            return "";
         }
 
-        String trimmed = value.trim();
+        return stringifyValue(value);
+    }
 
-        // i18n paths (start with %) - no quotes
-        if (trimmed.startsWith("%")) {
-            // Convert i18n paths to camelCase if they contain underscores or hyphens
-            return toCamelCaseI18nPath(trimmed);
+    /**
+     * Format a nested Map recursively.
+     * @param map The map to format.
+     * @param indentLevel The indentation level.
+     * @param nestingStyle The nesting style to use.
+     * @return The formatted map string.
+     */
+    public static String formatNestedMap(Map<?, ?> map, int indentLevel, NestingStyle nestingStyle) {
+        StringBuilder builder = new StringBuilder();
+
+        // Get the nesting open and close characters
+        String nestingOpen = nestingStyle == NestingStyle.PARENTHESIS ? "(" : "{";
+        String nestingClose = nestingStyle == NestingStyle.PARENTHESIS ? ")" : "}";
+
+        List<String> valueContent = new ArrayList<>();
+        String indentStr = INDENT.repeat(indentLevel + 1);
+
+        for (Map.Entry<?, ?> subEntry : map.entrySet()) {
+            String subValue;
+            Object subValueObj = subEntry.getValue();
+
+            if (subValueObj instanceof Map<?, ?>) {
+                // Recursively format nested maps
+                // Children will always be formatted with parenthesis
+                subValue = formatNestedMap(
+                    (Map<?, ?>) subValueObj,
+                    indentLevel + 1,
+                    NestingStyle.PARENTHESIS
+                );
+            } else {
+                // Other Map properties use normal formatting
+                // This will be formatted with quotes if needed
+                subValue = formatPropertyValue(subValueObj);
+            }
+
+            valueContent.add(indentStr + subEntry.getKey() + ": " + subValue);
         }
 
-        // Variables (start with @) - no quotes
-        if (trimmed.startsWith("@")) {
-            return trimmed;
+        // Join the values with a comma and a new line
+        String valuesContent = String.join(",\n", valueContent);
+
+        // If there are values, add the nesting open and close characters
+        if (!valuesContent.isBlank()) {
+            builder.append(nestingOpen + "\n");
+            builder.append(valuesContent);
+            builder.append("\n" + INDENT.repeat(indentLevel) + nestingClose);
         }
 
-        // Numbers (integer or decimal) - no quotes
-        if (trimmed.matches("-?\\d+(\\.\\d+)?")) {
-            return trimmed;
-        }
-
-        // Booleans - no quotes
-        if (trimmed.equals("true") || trimmed.equals("false")) {
-            return trimmed;
-        }
-
-        // Hex colors (start with #) - no quotes, but expand 3-digit to 6-digit
-        if (trimmed.startsWith("#")) {
-            return expandHexColor(trimmed);
-        }
-
-        // Everything else needs quotes
-        return "\"" + trimmed + "\"";
+        return builder.toString();
     }
 
     /**
@@ -838,42 +931,8 @@ public class ComponentBuilder {
         return hex;
     }
 
-    /**
-     * Format a nested Map recursively.
-     * @param map The map to format.
-     * @param indentLevel The indentation level.
-     * @param isStyle Whether this is a Style property (affects formatting).
-     * @return The formatted map string.
-     */
-    private static String formatNestedMap(Map<?, ?> map, int indentLevel, boolean isStyle) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("(\n");
-        
-        List<String> valueContent = new ArrayList<>();
-        String indentStr = INDENT.repeat(indentLevel + 1);
-        
-        for (Map.Entry<?, ?> subEntry : map.entrySet()) {
-            String subValue;
-            Object subValueObj = subEntry.getValue();
-            
-            if (subValueObj instanceof Map<?, ?>) {
-                // Recursively format nested maps
-                subValue = formatNestedMap((Map<?, ?>) subValueObj, indentLevel + 1, false);
-            } else if (isStyle) {
-                // Style properties should not have quotes
-                subValue = formatStylePropertyValue(subValueObj.toString());
-            } else {
-                // Other Map properties use normal formatting
-                subValue = formatPropertyValue(subValueObj.toString(), "");
-            }
-            
-            valueContent.add(indentStr + subEntry.getKey() + ": " + subValue);
-        }
-
-        String indentStr2 = INDENT.repeat(indentLevel);
-        builder.append(String.join(",\n", valueContent));
-        builder.append("\n" + indentStr2 + ")");
-        
-        return builder.toString();
+    public enum NestingStyle {
+        PARENTHESIS,
+        CURLY_BRACES
     }
 }

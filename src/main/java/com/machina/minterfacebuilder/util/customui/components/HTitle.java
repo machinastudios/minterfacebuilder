@@ -3,6 +3,8 @@ package com.machina.minterfacebuilder.util.customui.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.machina.minterfacebuilder.helpers.Alignment;
+import com.machina.minterfacebuilder.model.LiteralValue;
 import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 
 /**
@@ -18,16 +20,16 @@ public class HTitle extends HytaleCustomUIComponent {
         // Configure Style with ALL values inline (no aliases)
         Map<String, Object> style = new HashMap<>();
         style.put("FontSize", 15);
-        style.put("VerticalAlignment", "Center");
+        style.put("VerticalAlignment", Alignment.CENTER);
         style.put("RenderUppercase", true);
         style.put("TextColor", "#b4c8c9");
         style.put("FontName", "Secondary");
         style.put("RenderBold", true);
         style.put("LetterSpacing", 0);
         
-        String alignment = "Center";
+        LiteralValue alignment = Alignment.CENTER;
         if (attributes != null && attributes.containsKey("alignment")) {
-            alignment = attributes.get("alignment");
+            alignment = Alignment.of(attributes.get("alignment"));
         }
         style.put("HorizontalAlignment", alignment);
         

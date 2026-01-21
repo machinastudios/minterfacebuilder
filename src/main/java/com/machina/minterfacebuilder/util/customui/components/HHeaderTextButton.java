@@ -3,6 +3,7 @@ package com.machina.minterfacebuilder.util.customui.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.machina.minterfacebuilder.helpers.Alignment;
 import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 
 /**
@@ -21,7 +22,7 @@ public class HHeaderTextButton extends HytaleCustomUIComponent {
         // Default LabelStyle - all expanded inline
         Map<String, Object> defaultLabelStyle = new HashMap<>();
         defaultLabelStyle.put("FontSize", 15);
-        defaultLabelStyle.put("VerticalAlignment", "Center");
+        defaultLabelStyle.put("VerticalAlignment", Alignment.CENTER);
         defaultLabelStyle.put("RenderUppercase", true);
         defaultLabelStyle.put("TextColor", "#d3d6db");
         defaultLabelStyle.put("FontName", "Default");
@@ -36,7 +37,7 @@ public class HHeaderTextButton extends HytaleCustomUIComponent {
         // Hovered state - all expanded inline
         Map<String, Object> hoveredLabelStyle = new HashMap<>();
         hoveredLabelStyle.put("FontSize", 15);
-        hoveredLabelStyle.put("VerticalAlignment", "Center");
+        hoveredLabelStyle.put("VerticalAlignment", Alignment.CENTER);
         hoveredLabelStyle.put("RenderUppercase", true);
         hoveredLabelStyle.put("TextColor", "#eaebee");
         hoveredLabelStyle.put("FontName", "Default");
@@ -49,7 +50,7 @@ public class HHeaderTextButton extends HytaleCustomUIComponent {
         // Pressed state - all expanded inline
         Map<String, Object> pressedLabelStyle = new HashMap<>();
         pressedLabelStyle.put("FontSize", 15);
-        pressedLabelStyle.put("VerticalAlignment", "Center");
+        pressedLabelStyle.put("VerticalAlignment", Alignment.CENTER);
         pressedLabelStyle.put("RenderUppercase", true);
         pressedLabelStyle.put("TextColor", "#b6bbc2");
         pressedLabelStyle.put("FontName", "Default");

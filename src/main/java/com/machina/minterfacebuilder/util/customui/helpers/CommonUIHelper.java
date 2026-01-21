@@ -1,5 +1,8 @@
 package com.machina.minterfacebuilder.util.customui.helpers;
 
+import com.machina.minterfacebuilder.helpers.Alignment;
+import com.machina.minterfacebuilder.helpers.Color;
+import com.machina.minterfacebuilder.model.LiteralValue;
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,12 +16,9 @@ public class CommonUIHelper {
     private static final int BUTTON_BORDER = 12;
     private static final int PRIMARY_BUTTON_HEIGHT = 44;
     private static final int SMALL_BUTTON_HEIGHT = 32;
-    private static final int BIG_BUTTON_HEIGHT = 48;
     private static final int BUTTON_PADDING = 24;
-    private static final int DEFAULT_BUTTON_MIN_WIDTH = 172;
     private static final String DISABLED_COLOR = "#797b7c";
     private static final int DROPDOWN_BOX_HEIGHT = 32;
-    private static final int TITLE_HEIGHT = 38;
     
     // ========== Private Helper Methods for Building Styles ==========
     
@@ -32,8 +32,8 @@ public class CommonUIHelper {
         labelStyle.put("TextColor", "#bfcdd5");
         labelStyle.put("RenderBold", true);
         labelStyle.put("RenderUppercase", true);
-        labelStyle.put("HorizontalAlignment", "Center");
-        labelStyle.put("VerticalAlignment", "Center");
+        labelStyle.put("HorizontalAlignment", Alignment.CENTER);
+        labelStyle.put("VerticalAlignment", Alignment.CENTER);
         return labelStyle;
     }
     
@@ -47,8 +47,8 @@ public class CommonUIHelper {
         labelStyle.put("TextColor", DISABLED_COLOR);
         labelStyle.put("RenderBold", true);
         labelStyle.put("RenderUppercase", true);
-        labelStyle.put("HorizontalAlignment", "Center");
-        labelStyle.put("VerticalAlignment", "Center");
+        labelStyle.put("HorizontalAlignment", Alignment.CENTER);
+        labelStyle.put("VerticalAlignment", Alignment.CENTER);
         return labelStyle;
     }
     
@@ -62,8 +62,8 @@ public class CommonUIHelper {
         labelStyle.put("TextColor", "#bdcbd3");
         labelStyle.put("RenderBold", true);
         labelStyle.put("RenderUppercase", true);
-        labelStyle.put("HorizontalAlignment", "Center");
-        labelStyle.put("VerticalAlignment", "Center");
+        labelStyle.put("HorizontalAlignment", Alignment.CENTER);
+        labelStyle.put("VerticalAlignment", Alignment.CENTER);
         return labelStyle;
     }
     
@@ -77,8 +77,8 @@ public class CommonUIHelper {
         labelStyle.put("TextColor", "#bfcdd5");
         labelStyle.put("RenderBold", true);
         labelStyle.put("RenderUppercase", true);
-        labelStyle.put("HorizontalAlignment", "Center");
-        labelStyle.put("VerticalAlignment", "Center");
+        labelStyle.put("HorizontalAlignment", Alignment.CENTER);
+        labelStyle.put("VerticalAlignment", Alignment.CENTER);
         return labelStyle;
     }
     
@@ -92,8 +92,10 @@ public class CommonUIHelper {
         labelStyle.put("TextColor", "#bdcbd3");
         labelStyle.put("RenderBold", true);
         labelStyle.put("RenderUppercase", true);
-        labelStyle.put("HorizontalAlignment", "Center");
-        labelStyle.put("VerticalAlignment", "Center");
+        labelStyle.put("HorizontalAlignment", Alignment.CENTER);
+        labelStyle.put("VerticalAlignment", Alignment.CENTER);
+        labelStyle.put("HorizontalAlignment", Alignment.CENTER);
+        labelStyle.put("VerticalAlignment", Alignment.CENTER);
         return labelStyle;
     }
     
@@ -695,7 +697,7 @@ public class CommonUIHelper {
         
         Map<String, Object> defaultLabelStyle = new HashMap<>();
         defaultLabelStyle.put("FontSize", 15);
-        defaultLabelStyle.put("VerticalAlignment", "Center");
+        defaultLabelStyle.put("VerticalAlignment", Alignment.CENTER);
         defaultLabelStyle.put("RenderUppercase", true);
         defaultLabelStyle.put("TextColor", "#d3d6db");
         defaultLabelStyle.put("FontName", "Default");
@@ -818,7 +820,7 @@ public class CommonUIHelper {
         Map<String, Object> labelStyle = new HashMap<>();
         labelStyle.put("TextColor", "#96a9be");
         labelStyle.put("RenderUppercase", true);
-        labelStyle.put("VerticalAlignment", "Center");
+        labelStyle.put("VerticalAlignment", Alignment.CENTER);
         labelStyle.put("FontSize", 13);
         style.put("LabelStyle", labelStyle);
         
@@ -828,13 +830,13 @@ public class CommonUIHelper {
         
         // Other properties
         style.put("HorizontalPadding", 8);
-        style.put("PanelAlign", "Right");
+        style.put("PanelAlign", Alignment.RIGHT);
         style.put("PanelOffset", 7);
         style.put("EntryHeight", 31);
         style.put("EntriesInViewport", 10);
         style.put("HorizontalEntryPadding", 7);
-        style.put("HoveredEntryBackground", "#0a0f17");
-        style.put("PressedEntryBackground", "#0f1621");
+        style.put("HoveredEntryBackground", Color.of("#0a0f17"));
+        style.put("PressedEntryBackground", Color.of("#0f1621"));
         style.put("FocusOutlineSize", 1);
         style.put("FocusOutlineColor", "#ffffff(0.4)");
         
@@ -842,8 +844,8 @@ public class CommonUIHelper {
         Map<String, Object> scrollbarStyle = new HashMap<>();
         scrollbarStyle.put("Spacing", 6);
         scrollbarStyle.put("Size", 6);
-        scrollbarStyle.put("Background", "PatchStyle(TexturePath: \"Common/Scrollbar.png\", Border: 3)");
-        scrollbarStyle.put("Handle", "PatchStyle(TexturePath: \"Common/ScrollbarHandle.png\", Border: 3)");
+        scrollbarStyle.put("Background", LiteralValue.of("PatchStyle(TexturePath: \"Common/Scrollbar.png\", Border: 3)"));
+        scrollbarStyle.put("Handle", LiteralValue.of("PatchStyle(TexturePath: \"Common/ScrollbarHandle.png\", Border: 3)"));
         style.put("PanelScrollbarStyle", scrollbarStyle);
         
         style.put("PanelBackground", "PatchStyle(TexturePath: \"Common/DropdownBox.png\", Border: 16)");
@@ -896,27 +898,27 @@ public class CommonUIHelper {
         
         Map<String, Object> unchecked = new HashMap<>();
         Map<String, Object> uncheckedDefault = new HashMap<>();
-        uncheckedDefault.put("Color", "#00000000");
+        uncheckedDefault.put("Color", Color.of("#00000000"));
         unchecked.put("DefaultBackground", uncheckedDefault);
         unchecked.put("HoveredBackground", uncheckedDefault);
         unchecked.put("PressedBackground", uncheckedDefault);
         Map<String, Object> uncheckedDisabled = new HashMap<>();
-        uncheckedDisabled.put("Color", "#424242");
+        uncheckedDisabled.put("Color", Color.of("#424242"));
         unchecked.put("DisabledBackground", uncheckedDisabled);
         Map<String, Object> untickSound = new HashMap<>();
-        untickSound.put("SoundPath", SoundsHelper.getUntick());
+        untickSound.put("SoundPath", LiteralValue.of(SoundsHelper.getUntick()));
         untickSound.put("Volume", 6);
         unchecked.put("ChangedSound", untickSound);
         style.put("Unchecked", unchecked);
         
         Map<String, Object> checked = new HashMap<>();
         Map<String, Object> checkedBackground = new HashMap<>();
-        checkedBackground.put("TexturePath", "Common/Checkmark.png");
+        checkedBackground.put("TexturePath", LiteralValue.of("Common/Checkmark.png"));
         checked.put("DefaultBackground", checkedBackground);
         checked.put("HoveredBackground", checkedBackground);
         checked.put("PressedBackground", checkedBackground);
         Map<String, Object> tickSound = new HashMap<>();
-        tickSound.put("SoundPath", SoundsHelper.getTick());
+        tickSound.put("SoundPath", LiteralValue.of(SoundsHelper.getTick()));
         tickSound.put("Volume", 6);
         checked.put("ChangedSound", tickSound);
         style.put("Checked", checked);
@@ -980,7 +982,7 @@ public class CommonUIHelper {
      */
     public static void applyPageOverlay(ComponentBuilder builder, Map<String, String> attributes) {
         // Set Background
-        builder.setProperty("Background", "#000000(0.45)");
+        builder.setProperty("Background", Color.of("#000000", 0.45));
     }
     
     // ========== Public Apply Methods for Labels ==========
@@ -992,7 +994,7 @@ public class CommonUIHelper {
         // Set Style
         Map<String, Object> style = new HashMap<>();
         style.put("FontSize", 40);
-        style.put("Alignment", "Center");
+        style.put("Alignment", Alignment.CENTER);
         builder.setProperty("Style", style);
         
         // Set Text if provided
@@ -1008,16 +1010,18 @@ public class CommonUIHelper {
         // Set Style
         Map<String, Object> style = new HashMap<>();
         style.put("FontSize", 15);
-        style.put("VerticalAlignment", "Center");
+        style.put("VerticalAlignment", Alignment.CENTER);
         style.put("RenderUppercase", true);
-        style.put("TextColor", "#b4c8c9");
+        style.put("TextColor", Color.of("#b4c8c9"));
         style.put("FontName", "Secondary");
         style.put("RenderBold", true);
         style.put("LetterSpacing", 0);
-        String alignment = "Center";
+
+        Alignment alignment = Alignment.CENTER;
         if (attributes != null && attributes.containsKey("alignment")) {
-            alignment = attributes.get("alignment");
+            alignment = Alignment.of(attributes.get("alignment"));
         }
+
         style.put("HorizontalAlignment", alignment);
         builder.setProperty("Style", style);
         

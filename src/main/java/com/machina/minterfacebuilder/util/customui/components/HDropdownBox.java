@@ -3,6 +3,8 @@ package com.machina.minterfacebuilder.util.customui.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.machina.minterfacebuilder.helpers.Alignment;
+import com.machina.minterfacebuilder.model.LiteralValue;
 import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 import com.machina.minterfacebuilder.util.customui.helpers.SoundsHelper;
 
@@ -26,9 +28,9 @@ public class HDropdownBox extends HytaleCustomUIComponent {
         Map<String, Object> style = new HashMap<>();
         
         // Backgrounds
-        style.put("DefaultBackground", "PatchStyle(TexturePath: \"Common/Dropdown.png\", Border: 16)");
-        style.put("HoveredBackground", "PatchStyle(TexturePath: \"Common/DropdownHovered.png\", Border: 16)");
-        style.put("PressedBackground", "PatchStyle(TexturePath: \"Common/DropdownPressed.png\", Border: 16)");
+        style.put("DefaultBackground", LiteralValue.of("PatchStyle(TexturePath: \"Common/Dropdown.png\", Border: 16)"));
+        style.put("HoveredBackground", LiteralValue.of("PatchStyle(TexturePath: \"Common/DropdownHovered.png\", Border: 16)"));
+        style.put("PressedBackground", LiteralValue.of("PatchStyle(TexturePath: \"Common/DropdownPressed.png\", Border: 16)"));
         
         // Arrow textures
         style.put("DefaultArrowTexturePath", "Common/DropdownCaret.png");
@@ -41,20 +43,20 @@ public class HDropdownBox extends HytaleCustomUIComponent {
         Map<String, Object> labelStyle = new HashMap<>();
         labelStyle.put("TextColor", "#96a9be");
         labelStyle.put("RenderUppercase", true);
-        labelStyle.put("VerticalAlignment", "Center");
+        labelStyle.put("VerticalAlignment", Alignment.CENTER);
         labelStyle.put("FontSize", 13);
         style.put("LabelStyle", labelStyle);
         
         Map<String, Object> entryLabelStyle = new HashMap<>();
         entryLabelStyle.put("TextColor", "#b7cedd");
         entryLabelStyle.put("RenderUppercase", true);
-        entryLabelStyle.put("VerticalAlignment", "Center");
+        entryLabelStyle.put("VerticalAlignment", Alignment.CENTER);
         entryLabelStyle.put("FontSize", 13);
         style.put("EntryLabelStyle", entryLabelStyle);
         
         // Other properties
         style.put("HorizontalPadding", 8);
-        style.put("PanelAlign", "Right");
+        style.put("PanelAlign", Alignment.RIGHT);
         style.put("PanelOffset", 7);
         style.put("EntryHeight", 31);
         style.put("EntriesInViewport", 10);
@@ -68,13 +70,13 @@ public class HDropdownBox extends HytaleCustomUIComponent {
         Map<String, Object> scrollbarStyle = new HashMap<>();
         scrollbarStyle.put("Spacing", 6);
         scrollbarStyle.put("Size", 6);
-        scrollbarStyle.put("Background", "PatchStyle(TexturePath: \"Common/Scrollbar.png\", Border: 3)");
-        scrollbarStyle.put("Handle", "PatchStyle(TexturePath: \"Common/ScrollbarHandle.png\", Border: 3)");
-        scrollbarStyle.put("HoveredHandle", "PatchStyle(TexturePath: \"Common/ScrollbarHandleHovered.png\", Border: 3)");
-        scrollbarStyle.put("DraggedHandle", "PatchStyle(TexturePath: \"Common/ScrollbarHandleDragged.png\", Border: 3)");
+        scrollbarStyle.put("Background", LiteralValue.of("PatchStyle(TexturePath: \"Common/Scrollbar.png\", Border: 3)")    );
+        scrollbarStyle.put("Handle", LiteralValue.of("PatchStyle(TexturePath: \"Common/ScrollbarHandle.png\", Border: 3)"));
+        scrollbarStyle.put("HoveredHandle", LiteralValue.of("PatchStyle(TexturePath: \"Common/ScrollbarHandleHovered.png\", Border: 3)"));
+        scrollbarStyle.put("DraggedHandle", LiteralValue.of("PatchStyle(TexturePath: \"Common/ScrollbarHandleDragged.png\", Border: 3)"));
         style.put("PanelScrollbarStyle", scrollbarStyle);
         
-        style.put("PanelBackground", "PatchStyle(TexturePath: \"Common/DropdownBox.png\", Border: 16)");
+        style.put("PanelBackground", LiteralValue.of("PatchStyle(TexturePath: \"Common/DropdownBox.png\", Border: 16)"));
         style.put("PanelPadding", 6);
         
         // Sounds using SoundsHelper (no $Sounds)

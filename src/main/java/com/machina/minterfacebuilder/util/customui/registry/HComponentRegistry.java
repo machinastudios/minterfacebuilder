@@ -1,11 +1,10 @@
 package com.machina.minterfacebuilder.util.customui.registry;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
-import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 import com.machina.minterfacebuilder.util.customui.components.*;
 
 /**
@@ -84,6 +83,7 @@ public class HComponentRegistry {
         if (tagName == null) {
             return null;
         }
+
         return COMPONENT_MAP.get(tagName.toLowerCase());
     }
 
@@ -96,6 +96,7 @@ public class HComponentRegistry {
         if (tagName == null) {
             return false;
         }
+
         return COMPONENT_MAP.containsKey(tagName.toLowerCase());
     }
 
@@ -119,10 +120,33 @@ public class HComponentRegistry {
      * Register a component class with the component registry.
      * @param componentClass The component class to register.
      */
-    private static void registerComponent(Class<? extends HytaleCustomUIComponent> componentClass) {
+    private static void registerComponent(Class<? extends ComponentBuilder> componentClass) {
         try {
-            Method method = componentClass.getDeclaredMethod("getTagName");
-            String tagName = (String) method.invoke(null);
+            // Get the TAG_NAME static field from the component class or its superclasses
+            Field tagNameField = null;
+            Class<?> currentClass = componentClass;
+
+            while (currentClass != null) {
+                try {
+                    tagNameField = currentClass.getDeclaredField("TAG_NAME");
+                    break;
+                } catch (NoSuchFieldException e) {
+                    currentClass = currentClass.getSuperclass();
+                }
+            }
+
+            // If the field is not found, throw an error
+            if (tagNameField == null) {
+                throw new NoSuchFieldException("TAG_NAME field not found in class hierarchy of " + componentClass.getName());
+            }
+
+            tagNameField.setAccessible(true);
+            String tagName = (String) tagNameField.get(null);
+
+            // If tagName is null, throw an error
+            if (tagName == null) {
+                throw new NullPointerException("TAG_NAME is null for component class " + componentClass.getName());
+            }
 
             COMPONENT_MAP.put(tagName, componentClass);
         } catch (Exception e) {

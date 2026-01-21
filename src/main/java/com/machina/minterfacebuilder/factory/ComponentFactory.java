@@ -1,6 +1,5 @@
 package com.machina.minterfacebuilder.factory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -43,18 +42,6 @@ public class ComponentFactory {
     }
 
     /**
-     * Register a custom component tag.
-     * @param tagName The HTML tag name to register (case-insensitive).
-     * @param factory A function that creates a ComponentBuilder from attributes.
-     */
-    public static void registerCustomTag(String tagName, Function<Map<String, String>, ComponentBuilder> factory) {
-        if (tagName == null || factory == null) {
-            throw new IllegalArgumentException("Tag name and factory cannot be null");
-        }
-        customComponents.put(tagName.toLowerCase(), factory);
-    }
-
-    /**
      * Register a custom component tag using a class that extends ComponentBuilder.
      * The class must have a constructor that accepts Map<String, String> attributes.
      * @param tagName The HTML tag name to register (case-insensitive).
@@ -62,7 +49,21 @@ public class ComponentFactory {
      */
     public static void registerCustomTag(String tagName, Class<? extends ComponentBuilder> componentClass) {
         if (tagName == null || componentClass == null) {
-            throw new IllegalArgumentException("Tag name and component class cannot be null");
+            String nullPointerMessage = (tagName == null ? "tagName" : "componentClass") + " is null";
+
+            // If tagName is null
+            if (tagName == null) {
+                nullPointerMessage = "tagName is null for component class " + componentClass.getName();
+            } else
+            // If componentClass is null
+            if (componentClass == null) {
+                nullPointerMessage = "componentClass is null for tag name " + tagName;
+            }
+
+            throw new IllegalArgumentException(
+                "Tag name and component class cannot be null",
+                new NullPointerException(nullPointerMessage)
+            );
         }
 
         registerCustomTag(tagName, attributes -> {
@@ -83,6 +84,36 @@ public class ComponentFactory {
                 }
             }
         });
+    }
+
+    /**
+     * Register a custom component tag.
+     * @param tagName The HTML tag name to register (case-insensitive).
+     * @param factory A function that creates a ComponentBuilder from attributes.
+     */
+    public static void registerCustomTag(String tagName, Function<Map<String, String>, ComponentBuilder> factory) {
+        if (tagName == null || factory == null) {
+            throw new IllegalArgumentException(
+                "Tag name and factory cannot be null",
+                new NullPointerException((tagName == null ? "tagName" : "factory") + " is null")
+            );
+        }
+
+        customComponents.put(tagName.toLowerCase(), factory);
+    }
+
+    /**
+     * Create a ComponentBuilder from a tag name and attributes.
+     * @param tagName The tag name.
+     * @param attributes The attributes.
+     * @return The ComponentBuilder.
+     */
+    public static <T extends ComponentBuilder> T create(Class<T> componentClass) {
+        try {
+            return componentClass.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create component: " + componentClass.getName(), e);
+        }
     }
 
     /**

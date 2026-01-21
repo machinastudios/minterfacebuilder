@@ -3,6 +3,8 @@ package com.machina.minterfacebuilder.util.customui.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.machina.minterfacebuilder.helpers.Alignment;
+import com.machina.minterfacebuilder.helpers.Color;
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
 import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 
@@ -35,10 +37,10 @@ public class HPanelTitle extends HytaleCustomUIComponent {
         
         Map<String, Object> titleStyle = new HashMap<>();
         titleStyle.put("RenderBold", true);
-        titleStyle.put("VerticalAlignment", "Center");
+        titleStyle.put("VerticalAlignment", Alignment.CENTER);
         titleStyle.put("FontSize", 15);
         titleStyle.put("TextColor", "#afc2c3");
-        titleStyle.put("HorizontalAlignment", alignment);
+        titleStyle.put("HorizontalAlignment", Alignment.of(alignment));
         titleLabel.setProperty("Style", titleStyle);
         
         Map<String, Object> titleAnchor = new HashMap<>();
@@ -52,7 +54,7 @@ public class HPanelTitle extends HytaleCustomUIComponent {
         
         // Create separator Group
         ComponentBuilder separator = new ComponentBuilder("Group");
-        separator.setProperty("Background", "#393426(0.5)");
+        separator.setProperty("Background", Color.of("#393426", 0.5));
         
         Map<String, Object> sepAnchor = new HashMap<>();
         sepAnchor.put("Height", 1);

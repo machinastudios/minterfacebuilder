@@ -3,15 +3,16 @@ package com.machina.minterfacebuilder.util.customui;
 public abstract class HytaleCustomUIComponent extends ComponentBuilder {
     /**
      * The tag name of the component.
+     * SHOULD be overridden by the subclass.
      */
     private static String TAG_NAME;
 
     /**
-     * Get the tag name of the component.
-     * @return The tag name of the component.
+     * Construct the component.
      */
-    public static String getTagName() {
-        return TAG_NAME;
+    public HytaleCustomUIComponent() {
+        super(TAG_NAME);
+        throw new IllegalStateException("HytaleCustomUIComponent needs to support a public constructor without parameters");
     }
 
     protected HytaleCustomUIComponent(String component) {

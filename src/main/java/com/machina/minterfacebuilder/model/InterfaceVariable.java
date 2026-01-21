@@ -119,7 +119,7 @@ public class InterfaceVariable {
      * @param literal The InterfaceLiteral instance.
      * @return An InterfaceVariable with literal type.
      */
-    public static InterfaceVariable literalValue(InterfaceLiteral literal) {
+    public static InterfaceVariable literalValue(LiteralValue literal) {
         return new InterfaceVariable(literal.getValue(), Type.LITERAL);
     }
 

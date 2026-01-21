@@ -29,6 +29,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- MShared - Shared models and utilities -->
+        <dependency>
+            <groupId>com.machina</groupId>
+            <artifactId>mshared</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Hytale Server API -->
         <dependency>
             <groupId>com.hypixel.hytale</groupId>
