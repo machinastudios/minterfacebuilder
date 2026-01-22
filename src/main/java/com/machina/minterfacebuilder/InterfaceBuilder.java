@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,13 +15,12 @@ import javax.annotation.Nullable;
 import com.machina.minterfacebuilder.cache.FileWatcher;
 import com.machina.minterfacebuilder.cache.TemplateCache;
 import com.machina.minterfacebuilder.factory.ComponentFactory;
-import com.machina.minterfacebuilder.model.InterfaceVariable;
 import com.machina.minterfacebuilder.model.HTMLCustomUITemplate;
+import com.machina.minterfacebuilder.model.InterfaceVariable;
 import com.machina.minterfacebuilder.parser.CSSStyleParser;
 import com.machina.minterfacebuilder.parser.CustomUIScriptParser;
 import com.machina.minterfacebuilder.parser.HTMLAttributeParser;
 import com.machina.minterfacebuilder.parser.VariableParser;
-import com.machina.minterfacebuilder.model.InterfaceVariable;
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
 
 /**

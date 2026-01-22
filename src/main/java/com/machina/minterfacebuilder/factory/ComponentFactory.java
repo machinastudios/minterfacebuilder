@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
+import com.machina.minterfacebuilder.util.customui.components.base.Tagless;
 import com.machina.minterfacebuilder.util.customui.registry.HComponentRegistry;
 
 /**
@@ -153,6 +154,19 @@ public class ComponentFactory {
     public static <T extends ComponentBuilder> T create(Class<T> componentClass, Map<String, Object> attributes, ComponentBuilder... children) {
         var component = create(componentClass, attributes);
         component.appendChild(children);
+        return component;
+    }
+
+    /**
+     * Create a ComponentBuilder from a component id.
+     * @param componentId The component id.
+     * @param children The children.
+     * @return The ComponentBuilder.
+     */
+    public static ComponentBuilder create(Class<? extends Tagless> componentClass, String componentId, Map<String, Object> attributes, ComponentBuilder... children) {
+        var component = new Tagless(componentId);
+        component.appendChild(children);
+        component.setProperties(attributes);
         return component;
     }
 

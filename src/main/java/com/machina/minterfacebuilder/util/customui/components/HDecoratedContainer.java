@@ -17,8 +17,8 @@ import com.machina.minterfacebuilder.util.customui.helpers.SoundsHelper;
 public class HDecoratedContainer extends HytaleCustomUIComponent {
     public static final String TAG_NAME = "HDecoratedContainer";
 
-    private ComponentBuilder title;
-    private ComponentBuilder content;
+    private ComponentBuilder titleGroup;
+    private ComponentBuilder contentGroup;
 
     public HDecoratedContainer() {
         this(null);
@@ -31,55 +31,55 @@ public class HDecoratedContainer extends HytaleCustomUIComponent {
             && attributes.containsKey("closebutton")
             && Boolean.parseBoolean(attributes.get("closebutton"));
 
-        appendChild(
+        titleGroup = ComponentFactory.create(
+            Group.class,
+            Map.of(
+                "Id", "Title",
+                "Anchor", Map.of(
+                    "Height", 38,
+                    "Top", 0
+                ),
+                "Background", Map.of(
+                    "TexturePath", "Common/ContainerHeader.png",
+                    "HorizontalBorder", 50,
+                    "VerticalBorder", 0
+                ),
+                "Padding", Map.of("Top", 7)
+            ),
             ComponentFactory.create(
                 Group.class,
                 Map.of(
-                    "Id", "Title",
+                    "Id", "ContainerDecorationTop",
                     "Anchor", Map.of(
-                        "Height", 38,
-                        "Top", 0
+                        "Width", 236,
+                        "Height", 11,
+                        "Top", -12
                     ),
-                    "Background", Map.of(
-                        "TexturePath", "Common/ContainerHeader.png",
-                        "HorizontalBorder", 50,
-                        "VerticalBorder", 0
-                    ),
-                    "Padding", Map.of("Top", 7)
-                ),
-                ComponentFactory.create(
-                    Group.class,
-                    Map.of(
-                        "Id", "ContainerDecorationTop",
-                        "Anchor", Map.of(
-                            "Width", 236,
-                            "Height", 11,
-                            "Top", -12
-                        ),
-                        "Background", Map.of("TexturePath", "Common/ContainerDecorationTop.png")
-                    )
+                    "Background", Map.of("TexturePath", "Common/ContainerDecorationTop.png")
                 )
             )
         );
 
-        appendChild(
-            ComponentFactory.create(
-                Group.class,
-                Map.of(
-                    "Id", "Content",
-                    "LayoutMode", LayoutMode.TOP,
-                    "Anchor", Map.of("Top", 38),
-                    "Padding", Map.of(
-                        "Full", 17, // 9 + 8 expanded
-                        "Top", 8
-                    ),
-                    "Background", Map.of(
-                        "TexturePath", "Common/ContainerPatch.png",
-                        "Border", 23
-                    )
+        appendChild(titleGroup);
+
+        contentGroup = ComponentFactory.create(
+            Group.class,
+            Map.of(
+                "Id", "Content",
+                "LayoutMode", LayoutMode.TOP,
+                "Anchor", Map.of("Top", 38),
+                "Padding", Map.of(
+                    "Full", 17, // 9 + 8 expanded
+                    "Top", 8
+                ),
+                "Background", Map.of(
+                    "TexturePath", "Common/ContainerPatch.png",
+                    "Border", 23
                 )
             )
         );
+
+        appendChild(contentGroup);
 
         appendChild(
             ComponentFactory.create(
@@ -129,7 +129,10 @@ public class HDecoratedContainer extends HytaleCustomUIComponent {
      * @return The container.
      */
     public HDecoratedContainer setTitle(ComponentBuilder title) {
-        this.title = title;
+        if (titleGroup != null && title != null) {
+            titleGroup.appendChild(title);
+        }
+
         return this;
     }
 
@@ -139,7 +142,22 @@ public class HDecoratedContainer extends HytaleCustomUIComponent {
      * @return The container.
      */
     public HDecoratedContainer setContent(ComponentBuilder content) {
-        this.content = content;
+        if (contentGroup != null && content != null) {
+            contentGroup.appendChild(content);
+        }
+
+        return this;
+    }
+
+    /**
+     * Set the padding of the content group.
+     * @param padding The padding map (e.g., Map.of("Vertical", 16, "Horizontal", 30))
+     * @return The container.
+     */
+    public HDecoratedContainer setContentPadding(Map<String, Object> padding) {
+        if (contentGroup != null && padding != null) {
+            contentGroup.setProperty("Padding", padding);
+        }
         return this;
     }
 }

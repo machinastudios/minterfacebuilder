@@ -155,7 +155,7 @@ public class PageBuilder extends ComponentBuilder {
             // Get the player component
             PlayerRef playerRef = store.getComponent(this.playerRef, PlayerRef.getComponentType());
             if (playerRef == null) {
-                return;
+                throw new IllegalStateException("Could not get player reference from entity store");
             }
 
             // Get the player component

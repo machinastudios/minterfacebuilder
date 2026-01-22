@@ -117,43 +117,47 @@ public class ConfirmationDialog extends PageBuilder {
                         "Anchor", Map.of("Width", 500)
                     )
                 )
-                    .appendChild(
-                        ComponentFactory.create(
-                            Group.class,
-                            Map.of(
-                                "Padding",
-                                Map.of(
-                                    "Vertical", 32,
-                                    "Horizontal", 45
-                                ),
-                                "LayoutMode", LayoutMode.TOP
-                            ),
-                            ComponentFactory.create(HTitle.class).setText(this.getTitle()),
-                            ComponentFactory.create(Label.class).setText(this.description),
-                            ComponentFactory.create(
-                                Group.class,
-                                Map.of(
-                                    "LayoutMode", LayoutMode.CENTER,
-                                    "Anchor", Map.of("Top", 16)
-                                ),
+                    .setContentPadding(Map.of(
+                        "Vertical", 16,
+                        "Horizontal", 30
+                    ))
+                    .setTitle(
+                        ComponentFactory.create(HTitle.class).setText(this.getTitle())
+                    )
+                    .setContent(
+                        ComponentFactory.create(Group.class, Map.of("LayoutMode", LayoutMode.TOP))
+                            .appendChild(
+                                ComponentFactory.create(Label.class)
+                                    .setText(this.description)
+                                    .setStyle(Map.of(
+                                        "TextColor", "#7a8a9b",
+                                        "Wrap", true
+                                    ))
+                                    .setProperty("Anchor", Map.of("Top", 8)),
                                 ComponentFactory.create(
-                                    HTextButton.class,
+                                    Group.class,
                                     Map.of(
-                                        "Anchor", Map.of("Right", 4)
+                                        "LayoutMode", LayoutMode.CENTER,
+                                        "Anchor", Map.of("Top", 16)
+                                    ),
+                                    ComponentFactory.create(
+                                        HTextButton.class,
+                                        Map.of(
+                                            "Anchor", Map.of("Right", 4)
+                                        )
                                     )
-                                )
-                                    .setText(this.getConfirmText())
-                                    .setId("ConfirmButton"),
-                                ComponentFactory.create(
-                                    HSecondaryTextButton.class,
-                                    Map.of(
-                                        "Anchor", Map.of("Left", 4)
+                                        .setText(this.getConfirmText())
+                                        .setId("ConfirmButton"),
+                                    ComponentFactory.create(
+                                        HSecondaryTextButton.class,
+                                        Map.of(
+                                            "Anchor", Map.of("Left", 4)
+                                        )
                                     )
+                                        .setText(this.getCancelText())
+                                        .setId("CancelButton")
                                 )
-                                    .setText(this.getCancelText())
-                                    .setId("CancelButton")
                             )
-                        )
                     )
             )
         );
