@@ -60,4 +60,22 @@ public class HTextField extends HytaleCustomUIComponent {
             this.setId(attributes.get("id"));
         }
     }
+
+    /**
+     * Set the placeholder text for the text field.
+     * @param placeholder The placeholder text to set.
+     */
+    public HTextField setPlaceholder(Object placeholder) {
+        this.setProperty("PlaceholderText", placeholder);
+        return this;
+    }
+
+    /**
+     * Set the password flag for the text field.
+     * @param password The password flag to set.
+     */
+    public HTextField setPassword(boolean password) {
+        this.setProperty("PasswordChar", password ? "*" : null);
+        return this;
+    }
 }

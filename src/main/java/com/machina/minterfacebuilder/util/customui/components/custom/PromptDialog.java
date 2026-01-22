@@ -200,24 +200,14 @@ public class PromptDialog extends PageBuilder {
 
         // Iterate over the input fields
         for (InputField field : this.inputFields) {
-            // Create the field attributes
-            Map<String, Object> fieldAttributes = new HashMap<>();
-            fieldAttributes.put("Id", field.id);
-
-            // Set the placeholder
-            if (field.placeholder != null) {
-                fieldAttributes.put("Placeholder", field.placeholder);
-            }
-            
             // Create the text field
-            ComponentBuilder textField = ComponentFactory.create(HTextField.class, fieldAttributes)
-                .setProperty("Anchor", Map.of("Top", topOffset));
+            HTextField textField = ((HTextField) ComponentFactory.create(HTextField.class));
 
-            // If it is a password field, set the password character
-            if (field.isPassword) {
-                textField.setProperty("PasswordChar", "*");
-            }
-            
+            textField.setProperty("Anchor", Map.of("Top", topOffset));
+            textField.setId(field.id);
+            textField.setPlaceholder(field.placeholder);
+            textField.setPassword(field.isPassword);
+
             // Add the text field to the group
             fieldsGroup.appendChild(textField);
 
@@ -247,7 +237,7 @@ public class PromptDialog extends PageBuilder {
         } catch (Exception e) {
             // Fallback: return stored values
         }
-        
+
         // Ensure all fields have a value
         for (InputField field : this.inputFields) {
             if (!values.containsKey(field.id)) {
