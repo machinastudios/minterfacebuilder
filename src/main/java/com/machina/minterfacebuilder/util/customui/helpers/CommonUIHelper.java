@@ -1,11 +1,12 @@
 package com.machina.minterfacebuilder.util.customui.helpers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.machina.minterfacebuilder.helpers.Alignment;
 import com.machina.minterfacebuilder.helpers.Color;
 import com.machina.minterfacebuilder.model.LiteralValue;
 import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Helper class for applying Common.ui component styles and properties to ComponentBuilder instances.
@@ -770,7 +771,7 @@ public class CommonUIHelper {
         builder.setProperty("PlaceholderStyle", placeholderStyle);
         
         // Set Background
-        builder.setProperty("Background", "PatchStyle(TexturePath: \"Common/InputBox.png\", Border: 16)");
+        builder.setProperty("Background", LiteralValue.of("PatchStyle(TexturePath: \"Common/InputBox.png\", Border: 16)"));
         
         // Set Anchor
         Map<String, Object> anchor = new HashMap<>();

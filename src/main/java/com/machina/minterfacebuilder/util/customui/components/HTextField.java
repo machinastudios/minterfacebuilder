@@ -3,6 +3,7 @@ package com.machina.minterfacebuilder.util.customui.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.machina.minterfacebuilder.model.LiteralValue;
 import com.machina.minterfacebuilder.util.customui.HytaleCustomUIComponent;
 
 /**
@@ -29,7 +30,7 @@ public class HTextField extends HytaleCustomUIComponent {
         this.setProperty("PlaceholderStyle", placeholderStyle);
         
         // Configure Background
-        this.setProperty("Background", "PatchStyle(TexturePath: \"Common/InputBox.png\", Border: 16)");
+        this.setProperty("Background", LiteralValue.of("PatchStyle(TexturePath: \"Common/InputBox.png\", Border: 16)"));
         
         // Configure Anchor
         Map<String, Object> anchor = new HashMap<>();

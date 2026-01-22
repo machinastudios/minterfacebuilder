@@ -93,7 +93,7 @@ public class PromptDialog extends PageBuilder {
         
         // Initialize current input values
         for (InputField field : this.inputFields) {
-            this.currentInputValues.put(field.id, field.initialValue != null ? field.initialValue : "");
+            this.currentInputValues.put(field.id, "");
         }
     }
 
@@ -197,21 +197,24 @@ public class PromptDialog extends PageBuilder {
         ComponentBuilder fieldsGroup = ComponentFactory.create(Group.class, Map.of("LayoutMode", LayoutMode.TOP));
         
         int topOffset = 16;
+
+        // Iterate over the input fields
         for (InputField field : this.inputFields) {
+            // Create the field attributes
             Map<String, Object> fieldAttributes = new HashMap<>();
-            fieldAttributes.put("id", field.id);
+            fieldAttributes.put("Id", field.id);
+
+            // Set the placeholder
             if (field.placeholder != null) {
-                fieldAttributes.put("placeholder", field.placeholder.toString());
-            }
-            if (field.initialValue != null) {
-                fieldAttributes.put("value", field.initialValue);
+                fieldAttributes.put("Placeholder", field.placeholder);
             }
             
+            // Create the text field
             ComponentBuilder textField = ComponentFactory.create(HTextField.class, fieldAttributes)
                 .setProperty("Anchor", Map.of("Top", topOffset));
-            
+
             if (field.isPassword) {
-                textField.setProperty("Style", Map.of("PasswordChar", "*"));
+                textField.setProperty("PasswordChar", "*");
             }
             
             fieldsGroup.appendChild(textField);
@@ -301,24 +304,25 @@ public class PromptDialog extends PageBuilder {
         public final Object placeholder;
 
         /**
-         * The initial value for the input field.
-         */
-        @Nullable
-        public final String initialValue;
-
-        /**
          * Whether the input field is a password field.
          */
         public final boolean isPassword;
 
         public InputField(@Nonnull String id) {
-            this(id, null, null, false);
+            this(id, null, false);
         }
 
-        public InputField(@Nonnull String id, @Nullable Object placeholder, @Nullable String initialValue, boolean isPassword) {
+        public InputField(@Nonnull String id, @Nonnull String placeholder) {
+            this(id, placeholder, false);
+        }
+
+        public InputField(@Nonnull String id, @Nonnull TranslationKey placeholder) {
+            this(id, placeholder, false);
+        }
+
+        public InputField(@Nonnull String id, @Nullable Object placeholder, boolean isPassword) {
             this.id = id;
             this.placeholder = placeholder;
-            this.initialValue = initialValue;
             this.isPassword = isPassword;
         }
 
@@ -328,7 +332,7 @@ public class PromptDialog extends PageBuilder {
          * @return A new InputField with the updated placeholder.
          */
         public InputField setPlaceholder(@Nullable Object placeholder) {
-            return new InputField(this.id, placeholder, this.initialValue, this.isPassword);
+            return new InputField(this.id, placeholder, this.isPassword);
         }
 
         /**
@@ -337,7 +341,7 @@ public class PromptDialog extends PageBuilder {
          * @return A new InputField with the updated initial value.
          */
         public InputField setInitialValue(@Nullable String initialValue) {
-            return new InputField(this.id, this.placeholder, initialValue, this.isPassword);
+            return new InputField(this.id, this.placeholder, this.isPassword);
         }
 
         /**
@@ -346,7 +350,17 @@ public class PromptDialog extends PageBuilder {
          * @return A new InputField with the updated password setting.
          */
         public InputField setPassword(boolean isPassword) {
-            return new InputField(this.id, this.placeholder, this.initialValue, isPassword);
+            return new InputField(this.id, this.placeholder, isPassword);
+        }
+    }
+
+    public static class PasswordField extends InputField {
+        public PasswordField(@Nonnull String id) {
+            super(id, null, true);
+        }
+
+        public PasswordField(@Nonnull String id, @Nonnull TranslationKey placeholder) {
+            super(id, placeholder, true);
         }
     }
 
