@@ -24,14 +24,14 @@ import com.machina.minterfacebuilder.util.customui.components.HTitle;
 import com.machina.minterfacebuilder.util.customui.components.base.Group;
 import com.machina.minterfacebuilder.util.customui.components.base.Label;
 
-public class PromptDialog extends PageBuilder {
+public class FormDialog extends PageBuilder {
     /**
      * Show a prompt dialog to the player.
      * @param options The dialog options.
      * @return The prompt dialog instance.
      */
-    public static PromptDialog create(Options options) {
-        return new PromptDialog(options);
+    public static FormDialog create(Options options) {
+        return new FormDialog(options);
     }
 
     /**
@@ -79,7 +79,7 @@ public class PromptDialog extends PageBuilder {
      */
     private final Map<String, String> currentInputValues = new HashMap<>();
 
-    public PromptDialog(Options options) {
+    public FormDialog(Options options) {
         super("Group", null, CustomPageLifetime.CanDismiss);
 
         this.title = options.title;
