@@ -26,21 +26,21 @@ import com.machina.minterfacebuilder.util.customui.components.base.Label;
 
 public class FormDialog extends PageBuilder {
     /**
-     * Show a prompt dialog to the player.
-     * @param options The dialog options.
-     * @return The prompt dialog instance.
+     * Show a form dialog to the player.
+     * @param options The form options.
+     * @return The form dialog instance.
      */
     public static FormDialog create(Options options) {
         return new FormDialog(options);
     }
 
     /**
-     * The title of the dialog.
+     * The title of the form.
      */
     private final Object title;
 
     /**
-     * The description of the dialog.
+     * The description of the form.
      */
     private final Object description;
 
@@ -161,9 +161,19 @@ public class FormDialog extends PageBuilder {
         // Listen for changes in all input fields
         for (InputField field : this.inputFields) {
             addEventListener("#" + field.id, EventType.CHANGE, (e) -> {
-                // The event value contains the component ID, but we need to get the actual value
-                // For now, we'll rely on the currentInputValues being updated through the event system
-                // The actual value will be retrieved when the button is clicked
+                var value = e.getValue();
+
+                // If the value is null, set it to an empty string
+                if (value == null) {
+                    value = "";
+                } else
+                // If the value is not a string, convert it to a string
+                if (!(value instanceof String)) {
+                    value = value.toString();
+                }
+
+                // Update the current input values
+                this.currentInputValues.put(field.id, (String) value);
             });
         }
 
