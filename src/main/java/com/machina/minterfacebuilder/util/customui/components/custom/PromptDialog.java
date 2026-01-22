@@ -213,12 +213,16 @@ public class PromptDialog extends PageBuilder {
             ComponentBuilder textField = ComponentFactory.create(HTextField.class, fieldAttributes)
                 .setProperty("Anchor", Map.of("Top", topOffset));
 
+            // If it is a password field, set the password character
             if (field.isPassword) {
                 textField.setProperty("PasswordChar", "*");
             }
             
+            // Add the text field to the group
             fieldsGroup.appendChild(textField);
-            topOffset += 50; // Space between fields
+
+            // Increment the top offset for the next field
+            topOffset += 50;
         }
         
         return fieldsGroup;

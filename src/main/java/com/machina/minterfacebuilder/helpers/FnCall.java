@@ -9,6 +9,15 @@ import com.machina.minterfacebuilder.util.customui.ComponentBuilder;
 
 public class FnCall extends LiteralValue {
     /**
+     * Create a new FnCall with no arguments.
+     * @param functionName The name of the function.
+     * @return A new FnCall.
+     */
+    public static FnCall of(String functionName) {
+        return new FnCall(functionName, Map.of());
+    }
+
+    /**
      * Create a new FnCall.
      * @param functionName The name of the function.
      * @param arguments The arguments of the function.

@@ -221,7 +221,7 @@ public class ComponentBuilder {
                     (Map<?, ?>) valueObj, componentIndent + 1, NestingStyle.PARENTHESIS
                 );
             } else {
-                value = formatPropertyValue(valueObj);
+                value = formatPropertyValue(valueObj, componentIndent + 1);
             }
 
             // If the value is blank, skip it
@@ -446,6 +446,7 @@ public class ComponentBuilder {
                 if (existingStyle instanceof String) {
                     styleMap.putAll(StyleStringParser.parseKeyValuePairs((String) existingStyle));
                 }
+
                 // If it's a LiteralValue
                 if (existingStyle instanceof LiteralValue) {
                     // If the literal value is a FnCall, return the value of the FnCall
@@ -518,6 +519,20 @@ public class ComponentBuilder {
      * @return The string representation of the value.
      */
     public static String stringifyValue(Object value) {
+        return stringifyValue(value, 0);
+    }
+
+    /**
+     * Convert a value to a string.
+     * @param value The value to convert.
+     * @return The string representation of the value.
+     */
+    public static String stringifyValue(Object value, int indentLevel) {
+        // If it's a function call, convert it to a string
+        if (value instanceof FnCall) {
+            return ((FnCall) value).getValue(0);
+        }
+
         // If it's an InterfaceLiteral, convert it to a string
         if (value instanceof LiteralValue) {
             return ((LiteralValue) value).getValue();
@@ -675,6 +690,22 @@ public class ComponentBuilder {
      * @return The builder instance.
      */
     public ComponentBuilder setProperty(String property, Map<String, Object> value) {
+        // If the value is a map
+        if (value instanceof Map<?, ?>) {
+            // If a map already exists for the property, merge it with the new map
+            if (this.properties.containsKey(property)) {
+                Map<?, ?> current = (Map<?, ?>) this.properties.get(property);
+
+                // Create a mutable copy if the existing map is immutable
+                Map<String, Object> merged = new java.util.HashMap<>();
+                merged.putAll((Map<String, Object>) current);
+                merged.putAll(value);
+
+                this.properties.put(property, merged);
+                return this;
+            }
+        }
+
         return this.setProperty(property, (Object) new HashMap<>(value));
     }
 
@@ -871,13 +902,13 @@ public class ComponentBuilder {
      * @param propertyName The property name (to determine if it needs special handling).
      * @return The formatted value with quotes if needed.
      */
-    private static String formatPropertyValue(Object value) {
+    private static String formatPropertyValue(Object value, int indentLevel) {
         // If null or empty
         if (value == null) {
             return "";
         }
 
-        return stringifyValue(value);
+        return stringifyValue(value, indentLevel);
     }
 
     /**
@@ -912,7 +943,7 @@ public class ComponentBuilder {
             } else {
                 // Other Map properties use normal formatting
                 // This will be formatted with quotes if needed
-                subValue = formatPropertyValue(subValueObj);
+                subValue = formatPropertyValue(subValueObj, indentLevel + 1);
             }
 
             valueContent.add(indentStr + subEntry.getKey() + ": " + subValue);
