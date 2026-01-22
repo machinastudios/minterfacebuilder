@@ -159,7 +159,7 @@ public class PageBuilder extends ComponentBuilder {
             }
 
             // Get the player component
-            Player player = PlayerUtil.getPlayer(playerRef, store);
+            Player player = PlayerUtil.getPlayer(playerRef);
 
             // Allow subclasses to add custom bindings or modifications
             this.construct();
