@@ -23,7 +23,7 @@ public class Color extends LiteralValue {
      * @return A LiteralValue instance.
      */
     public static final Color of(String color, double alpha) {
-        return of(color);
+        return of(color + "(" + alpha + ")");
     }
 
     protected Color(String color) {

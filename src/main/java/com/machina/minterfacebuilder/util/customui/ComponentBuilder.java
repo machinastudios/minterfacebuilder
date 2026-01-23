@@ -316,6 +316,11 @@ public class ComponentBuilder {
      * @return The builder instance.
      */
     public ComponentBuilder appendChild(String child) {
+        // Ignore if the child is null
+        if (child == null) {
+            return this;
+        }
+
         this.children.add(child);
         return this;
     }
@@ -326,6 +331,11 @@ public class ComponentBuilder {
      * @return The builder instance.
      */
     public ComponentBuilder appendChild(ComponentBuilder child) {
+        // Ignore if the child is null
+        if (child == null) {
+            return this;
+        }
+
         this.children.add(child);
         child.setParent(this);
 
@@ -338,6 +348,11 @@ public class ComponentBuilder {
      * @return The builder instance.
      */
     public ComponentBuilder appendChild(List<Object> children) {
+        // Ignore if the children is null
+        if (children == null) {
+            return this;
+        }
+
         this.children.addAll(children);
         return this;
     }
