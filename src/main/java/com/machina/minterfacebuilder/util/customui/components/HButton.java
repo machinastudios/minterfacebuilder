@@ -3,9 +3,13 @@ package com.machina.minterfacebuilder.util.customui.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
+import com.machina.minterfacebuilder.factory.ComponentFactory;
 import com.machina.minterfacebuilder.helpers.FnCall;
 import com.machina.minterfacebuilder.model.LiteralValue;
 import com.machina.minterfacebuilder.util.customui.components.base.Button;
+import com.machina.minterfacebuilder.util.customui.components.base.Group;
 import com.machina.minterfacebuilder.util.customui.helpers.SoundsHelper;
 
 /**
@@ -14,6 +18,21 @@ import com.machina.minterfacebuilder.util.customui.helpers.SoundsHelper;
  */
 public class HButton extends Button {
     public static final String TAG_NAME = "HButton";
+    
+    /**
+     * The icon to display on the button
+     */
+    private String icon = null;
+
+    /**
+     * The height of the icon
+     */
+    private int iconHeight = 24;
+
+    /**
+     * The width of the icon
+     */
+    private int iconWidth = 24;
 
     public HButton() {
         this(null);
@@ -48,13 +67,88 @@ public class HButton extends Button {
         ));
 
         // Padding
-        Map<String, Object> padding = new HashMap<>();
-        padding.put("Horizontal", 24); // @ButtonPadding expanded
-        this.setProperty("Padding", padding);
+        this.setProperty("Padding", Map.of("Horizontal", 24));
         
         // ID
         if (attributes != null && attributes.containsKey("id")) {
             this.setId(attributes.get("id"));
         }
+    }
+
+    /**
+     * Set the icon to display on the button
+     * @param icon The icon to display on the button
+     * @return The button
+     */
+    @Nonnull
+    public HButton setIcon(String icon) {
+        this.icon = icon;
+        return this;
+    }
+
+    /**
+     * Set the icon to display on the button
+     * @param icon The icon to display on the button
+     * @param iconHeight The height of the icon
+     * @param iconWidth The width of the icon
+     * @return The button
+     */
+    @Nonnull
+    public HButton setIcon(String icon, int iconHeight, int iconWidth) {
+        this.icon = icon;
+        this.iconHeight = iconHeight;
+        this.iconWidth = iconWidth;
+        return this;
+    }
+
+    /**
+     * Set the height of the icon
+     * @param iconHeight The height of the icon
+     * @return The button
+     */
+    @Nonnull
+    public HButton setIconHeight(int iconHeight) {
+        this.iconHeight = iconHeight;
+        return this;
+    }
+
+    /**
+     * Set the width of the icon
+     * @param iconWidth The width of the icon
+     * @return The button
+     */
+    @Nonnull
+    public HButton setIconWidth(int iconWidth) {
+        this.iconWidth = iconWidth;
+        return this;
+    }
+
+    @Override
+    public String build() {
+        // If an icon is set, add it to the button
+        if (icon != null) {
+            var iconComponent = ComponentFactory.create(Group.class)
+                .setProperty("Background", icon);
+
+            // Get or create the anchor property
+            var anchor = getPropertyIgnoreCase("anchor", Map.of());
+            
+            // Set the height of the icon
+            if (iconHeight > 0) {
+                anchor.put("Height", iconHeight);
+            }
+
+            // Set the width of the icon
+            if (iconWidth > 0) {
+                anchor.put("Width", iconWidth);
+            }
+
+            // Set the anchor property
+            iconComponent.setProperty("Anchor", anchor);
+
+            appendChild(iconComponent);
+        }
+
+        return super.build();
     }
 }

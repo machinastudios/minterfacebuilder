@@ -70,7 +70,7 @@ public class PageBuilder extends ComponentBuilder {
      */
     @SuppressWarnings("null")
     public PageBuilder(@Nonnull PlayerRef playerRef) {
-        this("Group", playerRef.getReference(), CustomPageLifetime.CanDismiss);
+        this("Group", playerRef != null ? playerRef.getReference() : null, CustomPageLifetime.CanDismiss);
     }
 
     /**
@@ -116,62 +116,34 @@ public class PageBuilder extends ComponentBuilder {
      * @return The page builder.
      */
     public PageBuilder addEventListener(String selector, EventType eventType, Consumer<PageEvent<?>> action) {
+        // Normalize the selector
+        selector = normalizeId(selector);
+
         var eventListener = new EventListener(selector, eventType, action);
         this.eventListeners.add(eventListener);
         return this;
     }
 
     /**
-     * Send the page to the player.
+     * Add an event listener.
+     * @param selector The selector.
+     * @param eventType The event type.
+     * @param action The action.
      * @return The page builder.
      */
-    public PageBuilder send() {
-        // If there's no player reference, commandBuilder or eventBuilder, throw an exception
-        if (this.playerRef == null) {
-            throw new IllegalStateException("Player reference is not set");
-        }
+    public PageBuilder addEventListener(EventType eventType, String selector, Consumer<PageEvent<?>> action) {
+        return this.addEventListener(selector, eventType, action);
+    }
 
-        if (this.store == null) {
-            throw new IllegalStateException("Entity store reference is not set");
-        }
-
-        // Join the world thread
-        store.getExternalData().getWorld().execute(() -> {
-            // Build the page contents
-            String uiString = super.build();
-
-            // Limit UI string to 4MB to prevent server overload
-            final long MAX_UI_SIZE = 4L * 1024 * 1024; // 4MB in bytes
-            long uiSizeBytes = uiString.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
-            
-            if (uiSizeBytes > MAX_UI_SIZE) {
-                throw new IllegalStateException(String.format(
-                    "Generated UI string is too large: %d bytes (max: %d bytes / 4MB). " +
-                    "The UI template is generating too much content. Please simplify your HTML template.",
-                    uiSizeBytes, MAX_UI_SIZE
-                ));
-            }
-
-            // Get the player component
-            PlayerRef playerRef = store.getComponent(this.playerRef, PlayerRef.getComponentType());
-            if (playerRef == null) {
-                throw new IllegalStateException("Could not get player reference from entity store");
-            }
-
-            // Get the player component
-            Player player = PlayerUtil.getPlayer(playerRef);
-
-            // Allow subclasses to add custom bindings or modifications
-            this.construct();
-
-            // Build the page
-            this.customPage = this.buildPage();
-
-            // Send the page to the player
-            player.getPageManager().openCustomPage(null, store, this.customPage);
-        });
-
-        return this;
+    /**
+     * Add an event listener.
+     * @param eventType The event type.
+     * @param index The index of the element.
+     * @param action The action.
+     * @return The page builder.
+     */
+    public PageBuilder addEventListener(EventType eventType, int index, Consumer<PageEvent<?>> action) {
+        return this.addEventListener(Integer.toString(index), eventType, action);
     }
 
     /**
@@ -192,6 +164,59 @@ public class PageBuilder extends ComponentBuilder {
     public PageBuilder send(@Nonnull Ref<EntityStore> playerRef) {
         this.setPlayerRef(playerRef);
         return this.send();
+    }
+
+    /**
+     * Send the page to the player.
+     * @return The page builder.
+     */
+    public PageBuilder send() {
+        // If there's no player reference, commandBuilder or eventBuilder, throw an exception
+        if (this.playerRef == null) {
+            throw new IllegalStateException("Player reference is not set");
+        }
+
+        if (this.store == null) {
+            throw new IllegalStateException("Entity store reference is not set");
+        }
+
+        // Join the world thread
+        store.getExternalData().getWorld().execute(() -> {
+            // Get the player component
+            PlayerRef playerRef = store.getComponent(this.playerRef, PlayerRef.getComponentType());
+            if (playerRef == null) {
+                throw new IllegalStateException("Could not get player reference from entity store");
+            }
+
+            // Allow subclasses to add custom bindings or modifications
+            this.construct();
+
+            // Build the page contents
+            String uiString = super.build();
+
+            // Limit UI string to 4MB to prevent server overload
+            final long MAX_UI_SIZE = 4L * 1024 * 1024; // 4MB in bytes
+            long uiSizeBytes = uiString.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+            
+            if (uiSizeBytes > MAX_UI_SIZE) {
+                throw new IllegalStateException(String.format(
+                    "Generated UI string is too large: %d bytes (max: %d bytes / 4MB). " +
+                    "The UI template is generating too much content. Please simplify your HTML template.",
+                    uiSizeBytes, MAX_UI_SIZE
+                ));
+            }
+
+            // Get the player component
+            Player player = PlayerUtil.getPlayer(playerRef);
+
+            // Build the page
+            this.customPage = this.buildPage();
+
+            // Send the page to the player
+            player.getPageManager().openCustomPage(null, store, this.customPage);
+        });
+
+        return this;
     }
 
     /**

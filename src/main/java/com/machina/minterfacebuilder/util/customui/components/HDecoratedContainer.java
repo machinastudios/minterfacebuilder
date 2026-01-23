@@ -1,5 +1,6 @@
 package com.machina.minterfacebuilder.util.customui.components;
 
+import java.util.List;
 import java.util.Map;
 
 import com.machina.minterfacebuilder.factory.ComponentFactory;
@@ -142,6 +143,19 @@ public class HDecoratedContainer extends HytaleCustomUIComponent {
      * @return The container.
      */
     public HDecoratedContainer setContent(ComponentBuilder content) {
+        if (contentGroup != null && content != null) {
+            contentGroup.appendChild(content);
+        }
+
+        return this;
+    }
+
+    /**
+     * Set the content of the container.
+     * @param content The content component.
+     * @return The container.
+     */
+    public HDecoratedContainer setContent(List<Object> content) {
         if (contentGroup != null && content != null) {
             contentGroup.appendChild(content);
         }

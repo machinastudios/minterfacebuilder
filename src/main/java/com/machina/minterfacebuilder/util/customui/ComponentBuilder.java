@@ -25,6 +25,21 @@ public class ComponentBuilder {
     public static final String INDENT = "  ";
 
     /**
+     * Normalize the selector.
+     * @param selector The selector to normalize.
+     * @return The normalized selector.
+     */
+    protected static String normalizeId(String selector) {
+        if (selector == null) {
+            return null;
+        }
+
+        return selector
+            .replaceAll("-", "")
+            .replaceAll("_", "");
+    }
+
+    /**
      * The component type.
      */
     private String component;
@@ -118,6 +133,21 @@ public class ComponentBuilder {
     }
 
     /**
+     * Get the children of the component.
+     * @return The children of the component.
+     */
+    public List<Object> getChildren() {
+        return this.children;
+    }
+
+    /**
+     * Clear the children of the component.
+     */
+    public void clearChildren() {
+        this.children.clear();
+    }
+
+    /**
      * Build the component.
      * @return The component as a string.
      */
@@ -150,7 +180,7 @@ public class ComponentBuilder {
 
         // Get the id of the component
         String propId = this.getPropertyIgnoreCase("Id");
-        String id = propId != null ? propId.toString() : this.id;
+        String id = normalizeId(propId != null ? propId.toString() : this.id);
 
         // If the component is blank and the id is not null
         if (this.component.isBlank() && id != null) {
@@ -299,6 +329,16 @@ public class ComponentBuilder {
         this.children.add(child);
         child.setParent(this);
 
+        return this;
+    }
+
+    /**
+     * Append children to the component.
+     * @param children The children to append.
+     * @return The builder instance.
+     */
+    public ComponentBuilder appendChild(List<Object> children) {
+        this.children.addAll(children);
         return this;
     }
 
@@ -621,10 +661,30 @@ public class ComponentBuilder {
     /**
      * Get a property for the component.
      * @param property The property to get.
+     * @param defaultValue The default value to return if the property is not found.
+     * @return The value of the property.
+     */
+    public <T> T getProperty(String property, T defaultValue) {
+        return (T) this.properties.getOrDefault(property, defaultValue);
+    }
+
+    /**
+     * Get a property for the component.
+     * @param property The property to get.
      * @return The value of the property.
      */
     public <T> T getPropertyIgnoreCase(String property) {
         return (T) this.properties.get(getPropertyNameIgnoreCase(property));
+    }
+
+    /**
+     * Get a property for the component.
+     * @param property The property to get.
+     * @param defaultValue The default value to return if the property is not found.
+     * @return The value of the property.
+     */
+    public <T> T getPropertyIgnoreCase(String property, T defaultValue) {
+        return (T) this.properties.getOrDefault(getPropertyNameIgnoreCase(property), defaultValue);
     }
 
     /**
