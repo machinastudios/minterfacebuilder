@@ -18,6 +18,9 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <junit.version>5.9.2</junit.version>
+
+        <hytale.server.version>2026.01.23-6e2d4fc36</hytale.server.version>
+        <hytale.server.repository>https://maven.hytale.com/pre-release</hytale.server.repository>
     </properties>
 
     <dependencies>
@@ -36,22 +39,29 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- Hytale Server API -->
-        <dependency>
-            <groupId>com.hypixel.hytale</groupId>
-            <artifactId>Server</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/HytaleServer.jar</systemPath>
-        </dependency>
-
         <!-- ZXing for QR code generation -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
             <version>3.5.1</version>
         </dependency>
+
+        <!-- Hytale Server API -->
+        <dependency>
+            <groupId>com.hypixel.hytale</groupId>
+            <artifactId>Server</artifactId>
+            <version>${hytale.server.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
+
+    <!-- Add the Hytale release repository -->
+    <repositories>
+        <repository>
+            <id>hytale-release</id>
+            <url>${hytale.server.repository}</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
