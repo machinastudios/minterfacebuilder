@@ -906,8 +906,6 @@ Extends `ComponentBuilder` - all ComponentBuilder methods are available.
 
 A convenience class that extends `InteractiveCustomUIPage` and automatically converts HTML content to Custom UI format. This class simplifies the creation of Custom UI pages by handling HTML parsing and template management automatically.
 
-**Important:** `HTMLCustomUIPage` requires a `PlayerRef` in all constructors. Use `PlayerUtil.openPage()` or similar methods to open the page on the world thread.
-
 #### Constructors
 
 - `HTMLCustomUIPage(PlayerRef playerRef)` - Create with default lifetime (`CanDismiss`) and dynamic codec
@@ -964,20 +962,6 @@ public class MyPage extends HTMLCustomUIPage<HTMLCustomUITemplate.DynamicEventDa
         // when the page is actually displayed to the player
     }
 }
-```
-
-**Using with PlayerUtil.openPage (recommended for thread safety):**
-
-```java
-PlayerUtil.openPage(
-    player,
-    (p, ref, store) -> CustomHTMLPage.build(p.getPlayerRef())
-)
-.thenAccept(result -> {
-    if (!result.success) {
-        // Handle error
-    }
-});
 ```
 
 **Using with HTML file paths:**
@@ -1072,8 +1056,6 @@ public class SettingsPage extends HTMLCustomUIPage<HTMLCustomUITemplate.DynamicE
 5. **Variable Overrides**: Can provide variables during construction that override template variables.
 
 6. **Default Lifetime**: Default lifetime is `CustomPageLifetime.CanDismiss` if not specified.
-
-7. **Thread Safety**: Use `PlayerUtil.openPage()` to ensure page opening happens on the world thread.
 
 ## Limitations
 
