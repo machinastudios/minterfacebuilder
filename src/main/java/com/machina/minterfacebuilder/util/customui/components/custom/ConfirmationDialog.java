@@ -52,12 +52,12 @@ public class ConfirmationDialog extends PageBuilder {
     /**
      * The action to perform when the confirm button is pressed.
      */
-    private final Consumer<PageEvent<String>> onConfirm;
+    private Consumer<PageEvent<String>> onConfirm;
 
     /**
      * The action to perform when the cancel button is pressed.
      */
-    private final Consumer<PageEvent<String>> onCancel;
+    private Consumer<PageEvent<String>> onCancel;
 
     /**
      * Whether to close the dialog when the cancel button is pressed.
@@ -214,6 +214,26 @@ public class ConfirmationDialog extends PageBuilder {
         return this.title;
     }
 
+    /**
+     * Set the action to perform when the confirm button is pressed.
+     * @param onConfirm
+     * @return The confirmation dialog.
+     */
+    public ConfirmationDialog onConfirm(Consumer<PageEvent<String>> onConfirm) {
+        this.onConfirm = onConfirm;
+        return this;
+    }
+
+    /**
+     * Set the action to perform when the cancel button is pressed.
+     * @param onCancel
+     * @return The confirmation dialog.
+     */
+    public ConfirmationDialog onCancel(Consumer<PageEvent<String>> onCancel) {
+        this.onCancel = onCancel;
+        return this;
+    }
+
     public static class Options {
         public Object title;
         public Object description;
@@ -223,10 +243,14 @@ public class ConfirmationDialog extends PageBuilder {
         public Consumer<PageEvent<String>> onConfirm;
         public Consumer<PageEvent<String>> onCancel;
         public Consumer<Boolean> onConfirmOrCancel;
-
-        public Options(@Nonnull TranslationKey title, @Nonnull TranslationKey description, @Nonnull Consumer<Boolean> onConfirmOrCancel) {
+        
+        public Options(@Nonnull TranslationKey title, @Nonnull TranslationKey description) {
             this.title = title;
             this.description = description;
+        }
+        
+        public Options(@Nonnull TranslationKey title, @Nonnull TranslationKey description, @Nonnull Consumer<Boolean> onConfirmOrCancel) {
+            this(title, description);
             this.onConfirmOrCancel = onConfirmOrCancel;
         }
 
